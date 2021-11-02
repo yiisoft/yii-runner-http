@@ -102,8 +102,8 @@ final class WebApplicationRunner implements RunnerInterface
         $startTime = microtime(true);
 
         // Register temporary error handler to catch error while container is building.
-        $errorHandler = $this->createTemporaryErrorHandler();
-        $this->registerErrorHandler($errorHandler);
+        $temporaryErrorHandler = $this->createTemporaryErrorHandler();
+        $this->registerErrorHandler($temporaryErrorHandler);
 
         $config = $this->config ?? ConfigFactory::create($this->rootPath, $this->environment);
 
@@ -116,15 +116,17 @@ final class WebApplicationRunner implements RunnerInterface
         );
 
         // Register error handler with real container-configured dependencies.
-        $this->registerErrorHandler($container->get(ErrorHandler::class), $errorHandler);
+        /** @var ErrorHandler $actualErrorHandler */
+        $actualErrorHandler = $container->get(ErrorHandler::class);
+        $this->registerErrorHandler($actualErrorHandler, $temporaryErrorHandler);
+
+        if ($container instanceof Container) {
+            $container = $container->get(ContainerInterface::class);
+        }
 
         // Run bootstrap
         if ($this->bootstrapGroup !== null) {
             $this->runBootstrap($container, $config->get($this->bootstrapGroup));
-        }
-
-        if ($container instanceof Container) {
-            $container = $container->get(ContainerInterface::class);
         }
 
         if ($this->debug && $this->eventGroup !== null) {
@@ -190,7 +192,7 @@ final class WebApplicationRunner implements RunnerInterface
         $registered->register();
     }
 
-    private function runBootstrap(Container $container, array $bootstrapList): void
+    private function runBootstrap(ContainerInterface $container, array $bootstrapList): void
     {
         (new BootstrapRunner($container, $bootstrapList))->run();
     }
