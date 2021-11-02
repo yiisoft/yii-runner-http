@@ -164,7 +164,7 @@ final class WebApplicationRunner implements RunnerInterface
 
     private function createTemporaryErrorHandler(): ErrorHandler
     {
-        $logger = new Logger([new FileTarget( "$this->rootPath/runtime/logs/app.log")]);
+        $logger = new Logger([new FileTarget("$this->rootPath/runtime/logs/app.log")]);
         return new ErrorHandler($logger, new HtmlRenderer());
     }
 
