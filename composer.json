@@ -30,7 +30,7 @@
     "minimum-stability": "dev",
     "prefer-stable": true,
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0",
         "yiisoft/di": "@dev",
         "yiisoft/error-handler": "^1.0",
         "yiisoft/http": "^1.1",
