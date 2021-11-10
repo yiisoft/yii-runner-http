@@ -27,10 +27,7 @@ use Yiisoft\Yii\Runner\BootstrapRunner;
 use Yiisoft\Yii\Runner\ConfigFactory;
 use Yiisoft\Yii\Runner\RunnerInterface;
 use Yiisoft\Yii\Runner\ThrowableHandler;
-use Yiisoft\Yii\Web\Application;
-use Yiisoft\Yii\Web\Exception\HeadersHaveBeenSentException;
-use Yiisoft\Yii\Web\SapiEmitter;
-use Yiisoft\Yii\Web\ServerRequestFactory;
+use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function microtime;
 
@@ -43,7 +40,7 @@ final class HttpApplicationRunner implements RunnerInterface
     private ?ContainerInterface $container = null;
     private ?ErrorHandler $temporaryErrorHandler = null;
     private ?string $bootstrapGroup = 'bootstrap-web';
-    private ?string $eventGroup = 'event-web';
+    private ?string $eventsGroup = 'events-web';
 
     public function __construct(string $rootPath, bool $debug, ?string $environment)
     {
@@ -66,17 +63,17 @@ final class HttpApplicationRunner implements RunnerInterface
         return $new;
     }
 
-    public function withEvent(string $eventGroup): self
+    public function withEvents(string $eventsGroup): self
     {
         $new = clone $this;
-        $new->eventGroup = $eventGroup;
+        $new->eventsGroup = $eventsGroup;
         return $new;
     }
 
-    public function withoutEvent(): self
+    public function withoutEvents(): self
     {
         $new = clone $this;
-        $new->eventGroup = null;
+        $new->eventsGroup = null;
         return $new;
     }
 
@@ -137,13 +134,13 @@ final class HttpApplicationRunner implements RunnerInterface
             $this->runBootstrap($container, $config->get($this->bootstrapGroup));
         }
 
-        if ($this->debug && $this->eventGroup !== null) {
+        if ($this->debug && $this->eventsGroup !== null) {
             /** @psalm-suppress MixedMethodCall */
-            $container->get(ListenerConfigurationChecker::class)->check($config->get($this->eventGroup));
+            $container->get(ListenerConfigurationChecker::class)->check($config->get($this->eventsGroup));
         }
 
-        /** @var Application */
-        $application = $container->get(Application::class);
+        /** @var ServerRequestHandler $serverRequestHandler */
+        $serverRequestHandler = $container->get(ServerRequestHandler::class);
 
         /**
          * @var ServerRequestInterface
@@ -153,8 +150,8 @@ final class HttpApplicationRunner implements RunnerInterface
         $request = $serverRequest->withAttribute('applicationStartTime', $startTime);
 
         try {
-            $application->start();
-            $response = $application->handle($request);
+            $serverRequestHandler->start();
+            $response = $serverRequestHandler->handle($request);
             $this->emit($request, $response);
         } catch (Throwable $throwable) {
             $handler = new ThrowableHandler($throwable);
@@ -165,8 +162,8 @@ final class HttpApplicationRunner implements RunnerInterface
             $response = $container->get(ErrorCatcher::class)->process($request, $handler);
             $this->emit($request, $response);
         } finally {
-            $application->afterEmit($response ?? null);
-            $application->shutdown();
+            $serverRequestHandler->afterEmit($response ?? null);
+            $serverRequestHandler->shutdown();
         }
     }
 
