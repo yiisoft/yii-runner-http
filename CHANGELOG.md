@@ -1,4 +1,4 @@
-# Yii Runner Web Change Log
+# Yii Runner Http Change Log
 
 ## 1.0.0 under development
 

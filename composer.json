@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/yii-runner-web",
+    "name": "yiisoft/yii-runner-http",
     "type": "library",
     "description": "Web application runner",
     "keywords": [
@@ -10,12 +10,12 @@
     "homepage": "https://www.yiiframework.com/",
     "license": "BSD-3-Clause",
     "support": {
-        "issues": "https://github.com/yiisoft/yii-runner-web/issues?state=open",
+        "issues": "https://github.com/yiisoft/yii-runner-http/issues?state=open",
         "forum": "https://www.yiiframework.com/forum/",
         "wiki": "https://www.yiiframework.com/wiki/",
         "irc": "irc://irc.freenode.net/yii",
         "chat": "https://t.me/yii3en",
-        "source": "https://github.com/yiisoft/yii-runner-web"
+        "source": "https://github.com/yiisoft/yii-runner-http"
     },
     "funding": [
         {
@@ -50,12 +50,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Yiisoft\\Yii\\Runner\\Web\\": "src"
+            "Yiisoft\\Yii\\Runner\\Http\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Yiisoft\\Yii\\Runner\\Web\\Tests\\": "tests"
+            "Yiisoft\\Yii\\Runner\\Http\\Tests\\": "tests"
         }
     },
     "scripts": {

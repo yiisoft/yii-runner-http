@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Web;
+namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerInterface;
@@ -34,7 +34,7 @@ use Yiisoft\Yii\Web\ServerRequestFactory;
 
 use function microtime;
 
-final class WebApplicationRunner implements RunnerInterface
+final class HttpApplicationRunner implements RunnerInterface
 {
     private bool $debug;
     private string $rootPath;
