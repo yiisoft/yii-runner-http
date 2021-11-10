@@ -30,8 +30,8 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
-use Yiisoft\Yii\Runner\Http\NotFoundHandler;
-use Yiisoft\Yii\Runner\Http\ServerRequestHandler;
+use Yiisoft\Yii\Http\Application;
+use Yiisoft\Yii\Http\NotFoundHandler;
 
 return [
     EventDispatcherInterface::class => SimpleEventDispatcher::class,
@@ -48,7 +48,7 @@ return [
         'forceContentType()' => ['text/plain'],
     ],
 
-    ServerRequestHandler::class => [
+    Application::class => [
         '__construct()' => [
             'dispatcher' => DynamicReference::to(static function (ContainerInterface $container) {
                 return $container->get(MiddlewareDispatcher::class)->withMiddlewares([

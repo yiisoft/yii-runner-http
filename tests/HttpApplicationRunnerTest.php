@@ -39,14 +39,14 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
 use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
-use Yiisoft\Yii\Runner\Http\Event\AfterEmit;
-use Yiisoft\Yii\Runner\Http\Event\AfterRequest;
-use Yiisoft\Yii\Runner\Http\Event\ApplicationShutdown;
-use Yiisoft\Yii\Runner\Http\Event\ApplicationStartup;
-use Yiisoft\Yii\Runner\Http\Event\BeforeRequest;
+use Yiisoft\Yii\Http\Application;
+use Yiisoft\Yii\Http\Event\AfterEmit;
+use Yiisoft\Yii\Http\Event\AfterRequest;
+use Yiisoft\Yii\Http\Event\ApplicationShutdown;
+use Yiisoft\Yii\Http\Event\ApplicationStartup;
+use Yiisoft\Yii\Http\Event\BeforeRequest;
+use Yiisoft\Yii\Http\NotFoundHandler;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
-use Yiisoft\Yii\Runner\Http\NotFoundHandler;
-use Yiisoft\Yii\Runner\Http\ServerRequestHandler;
 
 final class HttpApplicationRunnerTest extends TestCase
 {
@@ -142,7 +142,7 @@ final class HttpApplicationRunnerTest extends TestCase
                 'forceContentType()' => ['text/plain'],
             ],
 
-            ServerRequestHandler::class => [
+            Application::class => [
                 '__construct()' => [
                     'dispatcher' => DynamicReference::to(
                         static function (ContainerInterface $container) use ($throwException) {

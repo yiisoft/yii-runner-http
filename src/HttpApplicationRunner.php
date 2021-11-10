@@ -23,6 +23,7 @@ use Yiisoft\Http\Method;
 use Yiisoft\Log\Logger;
 use Yiisoft\Log\Target\File\FileTarget;
 use Yiisoft\Yii\Event\ListenerConfigurationChecker;
+use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Runner\BootstrapRunner;
 use Yiisoft\Yii\Runner\ConfigFactory;
 use Yiisoft\Yii\Runner\RunnerInterface;
@@ -139,8 +140,8 @@ final class HttpApplicationRunner implements RunnerInterface
             $container->get(ListenerConfigurationChecker::class)->check($config->get($this->eventsGroup));
         }
 
-        /** @var ServerRequestHandler $serverRequestHandler */
-        $serverRequestHandler = $container->get(ServerRequestHandler::class);
+        /** @var Application $application */
+        $application = $container->get(Application::class);
 
         /**
          * @var ServerRequestInterface
@@ -150,8 +151,8 @@ final class HttpApplicationRunner implements RunnerInterface
         $request = $serverRequest->withAttribute('applicationStartTime', $startTime);
 
         try {
-            $serverRequestHandler->start();
-            $response = $serverRequestHandler->handle($request);
+            $application->start();
+            $response = $application->handle($request);
             $this->emit($request, $response);
         } catch (Throwable $throwable) {
             $handler = new ThrowableHandler($throwable);
@@ -162,8 +163,8 @@ final class HttpApplicationRunner implements RunnerInterface
             $response = $container->get(ErrorCatcher::class)->process($request, $handler);
             $this->emit($request, $response);
         } finally {
-            $serverRequestHandler->afterEmit($response ?? null);
-            $serverRequestHandler->shutdown();
+            $application->afterEmit($response ?? null);
+            $application->shutdown();
         }
     }
 
