@@ -8,7 +8,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Http\Tests\Emitter\Support;
+namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 
 use function array_key_exists;
 use function explode;

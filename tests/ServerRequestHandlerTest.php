@@ -145,8 +145,10 @@ final class ServerRequestHandlerTest extends TestCase
         );
     }
 
-    private function createMiddlewareDispatcher(Container $container, int $responseCode = 200): MiddlewareDispatcher
-    {
+    private function createMiddlewareDispatcher(
+        Container $container,
+        int $responseCode = Status::OK
+    ): MiddlewareDispatcher {
         return (new MiddlewareDispatcher(
             new MiddlewareFactory($container),
             $container->get(EventDispatcherInterface::class))

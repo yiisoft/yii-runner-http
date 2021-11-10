@@ -2,16 +2,16 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Http\Tests\Emitter\Support;
+namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
-final class NotWritableEmptyStream implements StreamInterface
+final class NotReadableStream implements StreamInterface
 {
     public function __toString(): string
     {
-        return '';
+        throw new RuntimeException();
     }
 
     public function close(): void
@@ -30,25 +30,27 @@ final class NotWritableEmptyStream implements StreamInterface
 
     public function tell(): int
     {
-        return 1;
+        throw new RuntimeException();
     }
 
     public function eof(): bool
     {
-        return true;
+        return false;
     }
 
     public function isSeekable(): bool
     {
-        return true;
+        return false;
     }
 
     public function seek($offset, $whence = SEEK_SET): void
     {
+        throw new RuntimeException();
     }
 
     public function rewind(): void
     {
+        throw new RuntimeException();
     }
 
     public function isWritable(): bool
@@ -63,17 +65,17 @@ final class NotWritableEmptyStream implements StreamInterface
 
     public function isReadable(): bool
     {
-        return true;
+        return false;
     }
 
     public function read($length): string
     {
-        return '';
+        throw new RuntimeException();
     }
 
     public function getContents(): string
     {
-        return '';
+        throw new RuntimeException();
     }
 
     public function getMetadata($key = null)

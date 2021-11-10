@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Http\Tests\Emitter;
+namespace Yiisoft\Yii\Runner\Http\Tests;
 
-include 'Support/httpFunctionMocks.php';
+include 'Support/Emitter/httpFunctionMocks.php';
 
 use InvalidArgumentException;
 use HttpSoft\Message\Response;
@@ -14,9 +14,9 @@ use Psr\Http\Message\StreamInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use Yiisoft\Yii\Runner\Http\SapiEmitter;
-use Yiisoft\Yii\Runner\Http\Tests\Emitter\Support\HTTPFunctions;
-use Yiisoft\Yii\Runner\Http\Tests\Emitter\Support\NotReadableStream;
-use Yiisoft\Yii\Runner\Http\Tests\Emitter\Support\NotWritableEmptyStream;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotReadableStream;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableEmptyStream;
 
 use function is_string;
 

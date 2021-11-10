@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Http\Tests\Emitter\Support;
+namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 
 include 'httpFunctionMocks.php';
 

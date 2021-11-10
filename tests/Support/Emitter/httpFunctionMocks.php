@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http;
 
-use Yiisoft\Yii\Runner\Http\Tests\Emitter\Support\HTTPFunctions;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 
 if (!function_exists(__NAMESPACE__ . '\\headers_sent')) {
     /**
