@@ -7,8 +7,15 @@ namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
-final class NotWritableEmptyStream implements StreamInterface
+final class NotWritableStream implements StreamInterface
 {
+    private bool $seekable;
+
+    public function __construct(bool $seekable = true)
+    {
+        $this->seekable = $seekable;
+    }
+
     public function __toString(): string
     {
         return '';
@@ -40,7 +47,7 @@ final class NotWritableEmptyStream implements StreamInterface
 
     public function isSeekable(): bool
     {
-        return true;
+        return $this->seekable;
     }
 
     public function seek($offset, $whence = SEEK_SET): void

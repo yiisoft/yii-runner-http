@@ -180,10 +180,9 @@ final class ServerRequestFactory
      */
     private function getHeadersFromGlobals(): array
     {
-        if (function_exists('getallheaders')) {
-            /** @psalm-var array<string, string>|false $headers */
-            $headers = getallheaders();
-            return $headers === false ? [] : $headers;
+        if (function_exists('getallheaders') && ($headers = getallheaders()) !== false) {
+            /** @psalm-var array<string, string> $headers */
+            return $headers;
         }
 
         $headers = [];

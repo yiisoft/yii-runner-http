@@ -101,12 +101,13 @@ final class ServerRequestHandlerTest extends TestCase
         );
     }
 
-    public function testAfterRequestWithResponseDispatchEvent(): void
+    public function testBeforeAndAfterRequestWithResponseDispatchEvent(): void
     {
         $eventDispatcher = new SimpleEventDispatcher();
         $this->createApplication($eventDispatcher)->handle($this->createRequest());
         $this->assertCount(4, $eventDispatcher->getEvents());
-        $this->assertInstanceOf(Response::class, $eventDispatcher->getEvents()[3]->getResponse());
+        $this->assertInstanceOf(ServerRequestInterface::class, $eventDispatcher->getEvents()[0]->getRequest());
+        $this->assertInstanceOf(ResponseInterface::class, $eventDispatcher->getEvents()[3]->getResponse());
     }
 
     public function testAfterRequestWithExceptionDispatchEvent(): void

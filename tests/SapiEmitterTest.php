@@ -16,7 +16,7 @@ use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use Yiisoft\Yii\Runner\Http\SapiEmitter;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotReadableStream;
-use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableEmptyStream;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableStream;
 
 use function is_string;
 
@@ -78,9 +78,21 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testEmitterWithNotWritableEmptyStreamStream(): void
+    public function testEmitterWithNotWritableStreamStream(): void
     {
-        $body = new NotWritableEmptyStream();
+        $body = new NotWritableStream();
+        $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
+
+        $this->createEmitter()->emit($response);
+
+        $this->assertSame(Status::OK, $this->getResponseCode());
+        $this->assertCount(1, $this->getHeaders());
+        $this->assertContains('X-Test: 42', $this->getHeaders());
+    }
+
+    public function testEmitterWithNotWritableAndNoSeekableStreamStream(): void
+    {
+        $body = new NotWritableStream(false);
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
 
         $this->createEmitter()->emit($response);
