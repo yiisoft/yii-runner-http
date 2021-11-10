@@ -120,7 +120,7 @@ final class ServerRequestFactoryTest extends TestCase
             'false' => [false],
             'empty-array' => [[]],
             'object' => [new StdClass()],
-            'callable' => [static fn() => null],
+            'callable' => [static fn () => null],
         ];
     }
 

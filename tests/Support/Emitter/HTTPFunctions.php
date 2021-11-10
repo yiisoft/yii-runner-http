@@ -41,9 +41,9 @@ final class HTTPFunctions
      */
     public static function set_headers_sent(bool $value = false, string $file = '', int $line = 0): void
     {
-        static::$headersSent = $value;
-        static::$headersSentFile = $file;
-        static::$headersSentLine = $line;
+        self::$headersSent = $value;
+        self::$headersSentFile = $file;
+        self::$headersSentLine = $line;
     }
 
     /**
@@ -51,9 +51,9 @@ final class HTTPFunctions
      */
     public static function headers_sent(&$file = null, &$line = null): bool
     {
-        $file = static::$headersSentFile;
-        $line = static::$headersSentLine;
-        return static::$headersSent;
+        $file = self::$headersSentFile;
+        $line = self::$headersSentLine;
+        return self::$headersSent;
     }
 
     /**

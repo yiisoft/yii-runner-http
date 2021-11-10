@@ -19,6 +19,7 @@ use Yiisoft\Yii\Runner\Http\Event\BeforeRequest;
  * ServerRequestHandler is the entry point for an HTTP application.
  *
  * For more details and usage information on Application, see the guide article on applications:
+ *
  * @see https://github.com/yiisoft/docs/blob/master/guide/en/structure/application.md.
  */
 final class ServerRequestHandler

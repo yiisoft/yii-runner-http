@@ -86,7 +86,7 @@ final class ServerRequestHandlerTest extends TestCase
         $eventDispatcher = new SimpleEventDispatcher();
 
         try {
-            $this->createApplication($eventDispatcher,Status::OK, true)->handle($this->createRequest());
+            $this->createApplication($eventDispatcher, Status::OK, true)->handle($this->createRequest());
         } catch (Exception $e) {
         }
 
@@ -151,7 +151,8 @@ final class ServerRequestHandlerTest extends TestCase
     ): MiddlewareDispatcher {
         return (new MiddlewareDispatcher(
             new MiddlewareFactory($container),
-            $container->get(EventDispatcherInterface::class))
+            $container->get(EventDispatcherInterface::class)
+        )
         )->withMiddlewares([
             static fn () => new class ($responseCode) implements MiddlewareInterface {
                 private int $responseCode;
@@ -175,7 +176,8 @@ final class ServerRequestHandlerTest extends TestCase
     {
         return (new MiddlewareDispatcher(
             new MiddlewareFactory($container),
-            $container->get(EventDispatcherInterface::class))
+            $container->get(EventDispatcherInterface::class)
+        )
         )->withMiddlewares([
             static fn () => new class () implements MiddlewareInterface {
                 public function process(
