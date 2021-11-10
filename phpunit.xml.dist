@@ -18,7 +18,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="Yii Runner Web tests">
+        <testsuite name="Yii Runner Http tests">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>

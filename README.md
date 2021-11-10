@@ -2,20 +2,20 @@
     <a href="https://github.com/yiisoft" target="_blank">
         <img src="https://yiisoft.github.io/docs/images/yii_logo.svg" height="100px">
     </a>
-    <h1 align="center">Yii Web Runner</h1>
+    <h1 align="center">Yii HTTP Runner</h1>
     <br>
 </p>
 
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii-runner-web/v/stable.png)](https://packagist.org/packages/yiisoft/yii-runner-web)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii-runner-web/downloads.png)](https://packagist.org/packages/yiisoft/yii-runner-web)
-[![Build status](https://github.com/yiisoft/yii-runner-web/workflows/build/badge.svg)](https://github.com/yiisoft/yii-runner-web/actions?query=workflow%3Abuild)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/yii-runner-web/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/yii-runner-web/?branch=master)
-[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/yii-runner-web/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/yii-runner-web/?branch=master)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fyii-runner-web%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/yii-runner-web/master)
-[![static analysis](https://github.com/yiisoft/yii-runner-web/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/yii-runner-web/actions?query=workflow%3A%22static+analysis%22)
-[![type-coverage](https://shepherd.dev/github/yiisoft/yii-runner-web/coverage.svg)](https://shepherd.dev/github/yiisoft/yii-runner-web)
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii-runner-http/v/stable.png)](https://packagist.org/packages/yiisoft/yii-runner-http)
+[![Total Downloads](https://poser.pugx.org/yiisoft/yii-runner-http/downloads.png)](https://packagist.org/packages/yiisoft/yii-runner-http)
+[![Build status](https://github.com/yiisoft/yii-runner-http/workflows/build/badge.svg)](https://github.com/yiisoft/yii-runner-http/actions?query=workflow%3Abuild)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/yiisoft/yii-runner-http/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/yii-runner-http/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/yiisoft/yii-runner-http/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/yiisoft/yii-runner-http/?branch=master)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fyiisoft%2Fyii-runner-http%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/yiisoft/yii-runner-http/master)
+[![static analysis](https://github.com/yiisoft/yii-runner-http/workflows/static%20analysis/badge.svg)](https://github.com/yiisoft/yii-runner-http/actions?query=workflow%3A%22static+analysis%22)
+[![type-coverage](https://shepherd.dev/github/yiisoft/yii-runner-http/coverage.svg)](https://shepherd.dev/github/yiisoft/yii-runner-http)
 
-The package contains a bootstrap for running Yii3 web application.
+The package contains a bootstrap for running Yii3 HTTP application.
 
 ## Requirements
 
@@ -26,12 +26,12 @@ The package contains a bootstrap for running Yii3 web application.
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/yii-runner-web --prefer-dist
+composer require yiisoft/yii-runner-http --prefer-dist
 ```
 
 ## General usage
 
-In your web entry script do the following:
+In your HTTP entry script do the following:
 
 ```php
 #!/usr/bin/env php
@@ -39,11 +39,11 @@ In your web entry script do the following:
 
 declare(strict_types=1);
 
-use Yiisoft\Yii\Runner\Web\WebApplicationRunner;
+use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
 require_once __DIR__ . '/preload.php';
 
-(new WebApplicationRunner(__DIR__, $_ENV['YII_DEBUG'], $_ENV['YII_ENV']))->run();
+(new HttpApplicationRunner(__DIR__, $_ENV['YII_DEBUG'], $_ENV['YII_ENV']))->run();
 ```
 
 ## Testing
@@ -75,7 +75,7 @@ The code is statically analyzed with [Psalm](https://psalm.dev/). To run static 
 
 ## License
 
-The Yii Web Runner is free software. It is released under the terms of the BSD License.
+The Yii HTTP Runner is free software. It is released under the terms of the BSD License.
 Please see [`LICENSE`](./LICENSE.md) for more information.
 
 Maintained by [Yii Software](https://www.yiiframework.com/).

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Web;
+namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerInterface;
@@ -23,18 +23,16 @@ use Yiisoft\Http\Method;
 use Yiisoft\Log\Logger;
 use Yiisoft\Log\Target\File\FileTarget;
 use Yiisoft\Yii\Event\ListenerConfigurationChecker;
+use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Runner\BootstrapRunner;
 use Yiisoft\Yii\Runner\ConfigFactory;
 use Yiisoft\Yii\Runner\RunnerInterface;
 use Yiisoft\Yii\Runner\ThrowableHandler;
-use Yiisoft\Yii\Web\Application;
-use Yiisoft\Yii\Web\Exception\HeadersHaveBeenSentException;
-use Yiisoft\Yii\Web\SapiEmitter;
-use Yiisoft\Yii\Web\ServerRequestFactory;
+use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function microtime;
 
-final class WebApplicationRunner implements RunnerInterface
+final class HttpApplicationRunner implements RunnerInterface
 {
     private bool $debug;
     private string $rootPath;
@@ -142,7 +140,7 @@ final class WebApplicationRunner implements RunnerInterface
             $container->get(ListenerConfigurationChecker::class)->check($config->get($this->eventsGroup));
         }
 
-        /** @var Application */
+        /** @var Application $application */
         $application = $container->get(Application::class);
 
         /**
