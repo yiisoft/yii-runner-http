@@ -67,6 +67,7 @@ final class SapiEmitter
 
         // Send headers.
         foreach ($response->getHeaders() as $header => $values) {
+            /** @var string $header */
             $replaceFirst = strtolower($header) !== 'set-cookie';
 
             foreach ($values as $value) {

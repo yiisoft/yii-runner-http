@@ -50,6 +50,7 @@ final class ServerRequestFactory
 
     public function createFromGlobals(): ServerRequestInterface
     {
+        /** @psalm-var array<string, string> $_SERVER */
         return $this->createFromParameters(
             $_SERVER,
             $this->getHeadersFromGlobals(),
@@ -70,6 +71,10 @@ final class ServerRequestFactory
      * @param array $files
      * @param resource|StreamInterface|string|null $body
      *
+     * @psalm-param array<string, string> $server
+     * @psalm-param array<string, string|string[]> $headers
+     * @psalm-param mixed $body
+     *
      * @return ServerRequestInterface
      */
     public function createFromParameters(
@@ -79,7 +84,7 @@ final class ServerRequestFactory
         array $get = [],
         array $post = [],
         array $files = [],
-        $body = null
+        mixed $body = null
     ): ServerRequestInterface {
         $method = $server['REQUEST_METHOD'] ?? null;
 
@@ -133,6 +138,9 @@ final class ServerRequestFactory
         );
     }
 
+    /**
+     * @psalm-param array<string, string> $server
+     */
     private function getUri(array $server): UriInterface
     {
         $uri = $this->uriFactory->createUri();
@@ -153,7 +161,7 @@ final class ServerRequestFactory
         }
 
         if (isset($server['SERVER_PORT'])) {
-            $uri = $uri->withPort($server['SERVER_PORT']);
+            $uri = $uri->withPort((int) $server['SERVER_PORT']);
         }
 
         if (isset($server['REQUEST_URI'])) {
@@ -167,15 +175,23 @@ final class ServerRequestFactory
         return $uri;
     }
 
+    /**
+     * @psalm-return array<string, string>
+     */
     private function getHeadersFromGlobals(): array
     {
         if (function_exists('getallheaders')) {
+            /** @psalm-var array<string, string>|false $headers */
             $headers = getallheaders();
             return $headers === false ? [] : $headers;
         }
 
         $headers = [];
 
+        /**
+         * @var string $name
+         * @var string $value
+         */
         foreach ($_SERVER as $name => $value) {
             if (strncmp($name, 'REDIRECT_', 9) === 0) {
                 $name = substr($name, 9);
@@ -207,6 +223,7 @@ final class ServerRequestFactory
     {
         $files = [];
 
+        /** @var array $info */
         foreach ($filesArray as $class => $info) {
             $files[$class] = [];
             $this->populateUploadedFileRecursive(
@@ -225,19 +242,36 @@ final class ServerRequestFactory
     /**
      * Populates uploaded files array from $_FILE data structure recursively.
      *
-     * @param array $files uploaded files array to be populated.
-     * @param mixed $names file names provided by PHP
-     * @param mixed $tempNames temporary file names provided by PHP
-     * @param mixed $types file types provided by PHP
-     * @param mixed $sizes file sizes provided by PHP
-     * @param mixed $errors uploading issues provided by PHP
+     * @param array $files Uploaded files array to be populated.
+     * @param mixed $names File names provided by PHP.
+     * @param mixed $tempNames Temporary file names provided by PHP.
+     * @param mixed $types File types provided by PHP.
+     * @param mixed $sizes File sizes provided by PHP.
+     * @param mixed $errors Uploading issues provided by PHP.
+     *
+     * @psalm-suppress MixedArgument, ReferenceConstraintViolation
      */
-    private function populateUploadedFileRecursive(array &$files, $names, $tempNames, $types, $sizes, $errors): void
-    {
+    private function populateUploadedFileRecursive(
+        array &$files,
+        mixed $names,
+        mixed $tempNames,
+        mixed $types,
+        mixed $sizes,
+        mixed $errors
+    ): void {
         if (is_array($names)) {
+            /** @var array|string $name */
             foreach ($names as $i => $name) {
                 $files[$i] = [];
-                $this->populateUploadedFileRecursive($files[$i], $name, $tempNames[$i], $types[$i], $sizes[$i], $errors[$i]);
+                /** @psalm-suppress MixedArrayAccess */
+                $this->populateUploadedFileRecursive(
+                    $files[$i],
+                    $name,
+                    $tempNames[$i],
+                    $types[$i],
+                    $sizes[$i],
+                    $errors[$i],
+                );
             }
 
             return;
