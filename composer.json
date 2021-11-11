@@ -59,6 +59,11 @@
             "Yiisoft\\Yii\\Runner\\Http\\Tests\\": "tests"
         }
     },
+    "extra": {
+        "config-plugin-options": {
+            "build-merge-plan": false
+        }
+    },
     "scripts": {
         "test": "phpunit --testdox --no-interaction",
         "test-watch": "phpunit-watcher watch"
