@@ -31,7 +31,7 @@ use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
-use Yiisoft\Yii\Http\NotFoundHandler;
+use Yiisoft\Yii\Http\Handler\NotFoundHandler;
 
 return [
     EventDispatcherInterface::class => SimpleEventDispatcher::class,
