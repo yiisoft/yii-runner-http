@@ -30,7 +30,7 @@ use function substr;
 use function ucwords;
 
 /**
- * ServerRequestFactory creates an instance of a server request.
+ * `ServerRequestFactory` creates an instance of a server request.
  */
 final class ServerRequestFactory
 {

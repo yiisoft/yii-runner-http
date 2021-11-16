@@ -15,7 +15,7 @@ use function sprintf;
 use function strtolower;
 
 /**
- * SapiEmitter sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
+ * `SapiEmitter` sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
  */
 final class SapiEmitter
 {

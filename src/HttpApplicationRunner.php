@@ -33,7 +33,7 @@ use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use function microtime;
 
 /**
- * HttpApplicationRunner runs the Yii HTTP application.
+ * `HttpApplicationRunner` runs the Yii HTTP application.
  */
 final class HttpApplicationRunner implements RunnerInterface
 {
