@@ -6,7 +6,6 @@ namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -239,7 +238,7 @@ final class HttpApplicationRunner implements RunnerInterface
     /**
      * @throws HeadersHaveBeenSentException
      */
-    private function emit(RequestInterface $request, ResponseInterface $response): void
+    private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
         (new SapiEmitter())->emit($response, $request->getMethod() === Method::HEAD);
     }
