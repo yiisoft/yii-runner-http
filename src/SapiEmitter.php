@@ -15,7 +15,7 @@ use function sprintf;
 use function strtolower;
 
 /**
- * SapiEmitter sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
+ * `SapiEmitter` sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
  */
 final class SapiEmitter
 {
@@ -32,6 +32,9 @@ final class SapiEmitter
 
     private int $bufferSize;
 
+    /**
+     * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
+     */
     public function __construct(int $bufferSize = null)
     {
         if ($bufferSize !== null && $bufferSize < 1) {

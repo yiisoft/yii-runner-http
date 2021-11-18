@@ -29,6 +29,9 @@ use function strtolower;
 use function substr;
 use function ucwords;
 
+/**
+ * `ServerRequestFactory` creates an instance of a server request.
+ */
 final class ServerRequestFactory
 {
     private ServerRequestFactoryInterface $serverRequestFactory;
@@ -48,6 +51,11 @@ final class ServerRequestFactory
         $this->streamFactory = $streamFactory;
     }
 
+    /**
+     * Creates an instance of a server request from PHP superglobals.
+     *
+     * @return ServerRequestInterface The server request instance.
+     */
     public function createFromGlobals(): ServerRequestInterface
     {
         /** @psalm-var array<string, string> $_SERVER */
@@ -63,6 +71,8 @@ final class ServerRequestFactory
     }
 
     /**
+     * Creates an instance of a server request from custom parameters.
+     *
      * @param array $server
      * @param array $headers
      * @param array $cookies
@@ -75,7 +85,7 @@ final class ServerRequestFactory
      * @psalm-param array<string, string|string[]> $headers
      * @psalm-param mixed $body
      *
-     * @return ServerRequestInterface
+     * @return ServerRequestInterface The server request instance.
      */
     public function createFromParameters(
         array $server,
