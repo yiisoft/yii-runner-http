@@ -10,14 +10,15 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 use Yiisoft\Config\Config;
+use Yiisoft\Definitions\Exception\CircularReferenceException;
+use Yiisoft\Definitions\Exception\InvalidConfigException;
+use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
+use Yiisoft\Di\NotFoundException;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
-use Yiisoft\Definitions\Exception\CircularReferenceException;
-use Yiisoft\Definitions\Exception\InvalidConfigException;
-use Yiisoft\Definitions\Exception\NotFoundException;
-use Yiisoft\Definitions\Exception\NotInstantiableException;
 use Yiisoft\Http\Method;
 use Yiisoft\Log\Logger;
 use Yiisoft\Log\Target\File\FileTarget;
@@ -26,8 +27,8 @@ use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\BootstrapRunner;
 use Yiisoft\Yii\Runner\ConfigFactory;
-use Yiisoft\Yii\Runner\RunnerInterface;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
+use Yiisoft\Yii\Runner\RunnerInterface;
 
 use function microtime;
 
@@ -170,13 +171,16 @@ final class HttpApplicationRunner implements RunnerInterface
 
         $config = $this->config ?? ConfigFactory::create($this->rootPath, $this->environment);
 
-        $container = $this->container ?? new Container(
-            $config->get('web'),
-            $config->get('providers-web'),
-            [],
-            $this->debug,
-            $config->get('delegates-web')
-        );
+        $container = $this->container;
+        if ($container === null) {
+            $containerConfig = ContainerConfig::create()
+                ->withDefinitions($config->get('web'))
+                ->withProviders($config->get('providers-web'))
+                ->withValidate($this->debug)
+                ->withDelegates($config->get('delegates-web'));
+
+            $container = new Container($containerConfig);
+        }
 
         // Register error handler with real container-configured dependencies.
         /** @var ErrorHandler $actualErrorHandler */
