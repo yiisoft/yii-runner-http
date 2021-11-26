@@ -28,6 +28,7 @@ use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Definitions\Reference;
 use Yiisoft\Di\Container;
+use Yiisoft\Di\ContainerConfig;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\PlainTextRenderer;
@@ -127,7 +128,19 @@ final class HttpApplicationRunnerTest extends TestCase
 
     private function createContainer(bool $throwException = false): ContainerInterface
     {
-        return new Container([
+        $containerConfig = ContainerConfig::create()
+                ->withDefinitions($this->createDefinitions($throwException));
+        return new Container($containerConfig);
+    }
+
+    private function createConfig(): Config
+    {
+        return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'));
+    }
+
+    private function createDefinitions(bool $throwException): array
+    {
+        return [
             EventDispatcherInterface::class => SimpleEventDispatcher::class,
             LoggerInterface::class => SimpleLogger::class,
             MiddlewareFactoryInterface::class => MiddlewareFactory::class,
@@ -172,12 +185,7 @@ final class HttpApplicationRunnerTest extends TestCase
                     'fallbackHandler' => Reference::to(NotFoundHandler::class),
                 ],
             ],
-        ]);
-    }
-
-    private function createConfig(): Config
-    {
-        return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'));
+        ];
     }
 
     private function createErrorHandler(): ErrorHandler
