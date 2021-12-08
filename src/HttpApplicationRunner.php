@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
+use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
+use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -159,7 +161,7 @@ final class HttpApplicationRunner implements RunnerInterface
      * {@inheritDoc}
      *
      * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
-     * @throws NotFoundException|NotInstantiableException
+     * @throws NotFoundException|NotInstantiableException|NotFoundExceptionInterface|ContainerExceptionInterface
      */
     public function run(): void
     {
@@ -170,17 +172,7 @@ final class HttpApplicationRunner implements RunnerInterface
         $this->registerErrorHandler($temporaryErrorHandler);
 
         $config = $this->config ?? ConfigFactory::create($this->rootPath, $this->environment);
-
-        $container = $this->container;
-        if ($container === null) {
-            $containerConfig = ContainerConfig::create()
-                ->withDefinitions($config->get('web'))
-                ->withProviders($config->get('providers-web'))
-                ->withValidate($this->debug)
-                ->withDelegates($config->get('delegates-web'));
-
-            $container = new Container($containerConfig);
-        }
+        $container = $this->container ?? $this->createDefaultContainer($config);
 
         // Register error handler with real container-configured dependencies.
         /** @var ErrorHandler $actualErrorHandler */
@@ -227,6 +219,28 @@ final class HttpApplicationRunner implements RunnerInterface
             $application->afterEmit($response ?? null);
             $application->shutdown();
         }
+    }
+
+    /**
+     * @throws ErrorException|InvalidConfigException
+     */
+    private function createDefaultContainer(Config $config): Container
+    {
+        $containerConfig = ContainerConfig::create()->withValidate($this->debug);
+
+        if ($config->has('web')) {
+            $containerConfig = $containerConfig->withDefinitions($config->get('web'));
+        }
+
+        if ($config->has('providers-web')) {
+            $containerConfig = $containerConfig->withProviders($config->get('providers-web'));
+        }
+
+        if ($config->has('delegates-web')) {
+            $containerConfig = $containerConfig->withDelegates($config->get('delegates-web'));
+        }
+
+        return new Container($containerConfig);
     }
 
     private function createTemporaryErrorHandler(): ErrorHandler
