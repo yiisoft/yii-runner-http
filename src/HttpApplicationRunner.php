@@ -161,7 +161,7 @@ final class HttpApplicationRunner implements RunnerInterface
      * {@inheritDoc}
      *
      * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
-     * @throws NotFoundException|NotInstantiableException|NotFoundExceptionInterface|ContainerExceptionInterface
+     * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
      */
     public function run(): void
     {
