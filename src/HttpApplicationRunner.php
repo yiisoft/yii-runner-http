@@ -12,6 +12,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
 use Yiisoft\Config\Config;
+use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
@@ -171,7 +172,7 @@ final class HttpApplicationRunner implements RunnerInterface
         $temporaryErrorHandler = $this->createTemporaryErrorHandler();
         $this->registerErrorHandler($temporaryErrorHandler);
 
-        $config = $this->config ?? ConfigFactory::create($this->rootPath, $this->environment);
+        $config = $this->config ?? ConfigFactory::create(new ConfigPaths($this->rootPath, 'config'), $this->environment);
         $container = $this->container ?? $this->createDefaultContainer($config);
 
         // Register error handler with real container-configured dependencies.
