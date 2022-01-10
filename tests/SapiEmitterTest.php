@@ -32,23 +32,31 @@ final class SapiEmitterTest extends TestCase
         HTTPFunctions::reset();
     }
 
-    public function noBodyResponseCodeProvider(): array
+    public function bufferSizeProvider(): array
     {
-        return [[100], [101], [102], [204], [205], [304]];
+        return [[null], [1], [100], [1000]];
     }
 
-    public function testEmit(): void
+    /**
+     * @dataProvider bufferSizeProvider
+     */
+    public function testEmit(?int $bufferSize): void
     {
         $body = 'Example body';
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], $body);
 
-        $this->createEmitter()->emit($response);
+        $this->createEmitter($bufferSize)->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(2, $this->getHeaders());
         $this->assertContains('X-Test: 1', $this->getHeaders());
         $this->assertContains('Content-Length: ' . strlen($body), $this->getHeaders());
         $this->expectOutputString($body);
+    }
+
+    public function noBodyResponseCodeProvider(): array
+    {
+        return [[100], [101], [102], [204], [205], [304]];
     }
 
     /**
@@ -78,7 +86,7 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testEmitterWithNotWritableStreamStream(): void
+    public function testEmitterWithNotWritableStream(): void
     {
         $body = new NotWritableStream();
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
@@ -90,7 +98,7 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testEmitterWithNotWritableAndNoSeekableStreamStream(): void
+    public function testEmitterWithNotWritableAndNoSeekableStream(): void
     {
         $body = new NotWritableStream(false);
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
@@ -152,7 +160,9 @@ final class SapiEmitterTest extends TestCase
     public function testSentHeadersRemoved(): void
     {
         HTTPFunctions::header('Cookie-Set: First Cookie');
+        HTTPFunctions::header('Content-Length: 1');
         HTTPFunctions::header('X-Test: 1');
+
         $body = 'Example body';
         $response = $this->createResponse(Status::OK, [], $body);
 
@@ -184,6 +194,10 @@ final class SapiEmitterTest extends TestCase
 
         $this->assertSame('HTTP headers have been sent', $exception->getName());
         $this->assertStringStartsWith('Headers already sent', $exception->getSolution());
+        $this->assertStringEndsWith(
+            "Emitter can't send headers once the headers block has already been sent.",
+            $exception->getSolution(),
+        );
     }
 
     public function testEmitDuplicateHeaders(): void
@@ -199,6 +213,7 @@ final class SapiEmitterTest extends TestCase
         ;
 
         (new SapiEmitter())->emit($response);
+
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertContains('X-Test: 1', $this->getHeaders());
         $this->assertContains('X-Test: 2', $this->getHeaders());
@@ -218,12 +233,9 @@ final class SapiEmitterTest extends TestCase
     private function createResponse(
         int $status = Status::OK,
         array $headers = [],
-        $body = null,
-        string $version = '1.1'
+        $body = null
     ): ResponseInterface {
-        $response = (new Response())
-            ->withStatus($status)
-            ->withProtocolVersion($version);
+        $response = new Response($status);
 
         foreach ($headers as $header => $value) {
             $response = $response->withHeader($header, $value);

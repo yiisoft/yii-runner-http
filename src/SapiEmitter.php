@@ -12,7 +12,6 @@ use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use function flush;
 use function in_array;
 use function sprintf;
-use function strtolower;
 
 /**
  * `SapiEmitter` sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
@@ -66,16 +65,13 @@ final class SapiEmitter
         if (headers_sent()) {
             throw new HeadersHaveBeenSentException();
         }
+
         header_remove();
 
         // Send headers.
         foreach ($response->getHeaders() as $header => $values) {
-            /** @var string $header */
-            $replaceFirst = strtolower($header) !== 'set-cookie';
-
             foreach ($values as $value) {
-                header("$header: $value", $replaceFirst);
-                $replaceFirst = false;
+                header("$header: $value", false);
             }
         }
 
@@ -91,6 +87,7 @@ final class SapiEmitter
             return;
         }
 
+        // Adds a `Content Length` header if a body exists, and it has not been added before.
         if (!$withoutContentLength && !$response->hasHeader('Content-Length')) {
             $contentLength = $response->getBody()->getSize();
 
@@ -122,7 +119,6 @@ final class SapiEmitter
             return false;
         }
 
-        // Check if body is empty.
         $body = $response->getBody();
 
         if (!$body->isReadable()) {
