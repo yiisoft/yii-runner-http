@@ -87,7 +87,7 @@ final class SapiEmitter
             return;
         }
 
-        // Adds a `Content Length` header if a body exists, and it has not been added before.
+        // Adds a `Content-Length` header if a body exists, and it has not been added before.
         if (!$withoutContentLength && !$response->hasHeader('Content-Length')) {
             $contentLength = $response->getBody()->getSize();
 
