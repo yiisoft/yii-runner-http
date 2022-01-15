@@ -39,7 +39,6 @@
         "yiisoft/http": "^1.2",
         "yiisoft/log": "^1.0",
         "yiisoft/log-target-file": "^1.0",
-        "yiisoft/yii-event": "^1.0",
         "yiisoft/yii-http": "^1.0",
         "yiisoft/yii-runner": "@dev"
     },
