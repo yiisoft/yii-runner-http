@@ -6,7 +6,6 @@ namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -14,7 +13,6 @@ use Throwable;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
 use Yiisoft\Definitions\Exception\NotInstantiableException;
-use Yiisoft\Di\Container;
 use Yiisoft\Di\NotFoundException;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
@@ -79,17 +77,13 @@ final class HttpApplicationRunner extends ApplicationRunner
         $temporaryErrorHandler = $this->createTemporaryErrorHandler();
         $this->registerErrorHandler($temporaryErrorHandler);
 
-        $config = $this->config ?? $this->createConfig();
-        $container = $this->container ?? $this->createContainer($config, 'web');
+        $config = $this->getConfig();
+        $container = $this->getContainer($config, 'web');
 
         // Register error handler with real container-configured dependencies.
         /** @var ErrorHandler $actualErrorHandler */
         $actualErrorHandler = $container->get(ErrorHandler::class);
         $this->registerErrorHandler($actualErrorHandler, $temporaryErrorHandler);
-
-        if ($container instanceof Container) {
-            $container = $container->get(ContainerInterface::class);
-        }
 
         $this->runBootstrap($config, $container);
         $this->checkEvents($config, $container);
