@@ -41,10 +41,84 @@ declare(strict_types=1);
 
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
-require_once __DIR__ . '/vendor/autoload.php';
-require_once __DIR__ . '/preload.php';
+require_once __DIR__ . '/autoload.php';
 
 (new HttpApplicationRunner(__DIR__, $_ENV['YII_DEBUG'], $_ENV['YII_ENV']))->run();
+```
+
+### Additional configuration
+
+By default, the `HttpApplicationRunner` is configured to work with Yii application templates.
+You can override the default configuration using immutable setters.
+
+Override the name of the bootstrap configuration group as follows:
+
+```php
+/**
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+// Bootstrap configuration group name by default is "bootstrap-web".
+$runner = $runner->withBootstrap('my-bootstrap-config-group-name');
+
+// Disables the use of bootstrap configuration group.
+$runner = $runner->withoutBootstrap();
+```
+
+In debug mode, event configurations are checked, to override, use the following setters:
+
+```php
+/**
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+// Configuration group name of events by default is "events-web".
+$runner = $runner->withCheckingEvents('my-events-config-group-name');
+
+// Disables checking of the event configuration group.
+$runner = $runner->withoutCheckingEvents();
+```
+
+If the configuration instance settings differ from the default, such as configuration group names,
+you can specify a customized configuration instance:
+
+```php
+/**
+ * @var Yiisoft\Config\ConfigInterface $config
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+$runner = $runner->withConfig($config);
+```
+
+The default container is `Yiisoft\Di\Container`. But you can specify any implementation
+of the `Psr\Container\ContainerInterface`:
+
+```php
+/**
+ * @var Psr\Container\ContainerInterface $container
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+$runner = $runner->withContainer($container);
+```
+
+In addition to the error handler that is defined in the container, the runner uses a temporary error handler.
+A temporary error handler is needed to handle the creation of configuration and container instances,
+then the error handler configured in your application configuration will be used.
+
+By default, the temporary error handler uses HTML renderer and logging to a file. You can override this as follows:
+
+```php
+/**
+ * @var Psr\Log\LoggerInterface $logger
+ * @var Yiisoft\ErrorHandler\Renderer\PlainTextRenderer $renderer
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+$runner = $runner->withTemporaryErrorHandler(
+    new Yiisoft\ErrorHandler\ErrorHandler($logger, $renderer),
+);
 ```
 
 ## Testing
