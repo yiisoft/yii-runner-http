@@ -47,6 +47,7 @@ final class HttpApplicationRunner implements RunnerInterface
     private ?ContainerInterface $container = null;
     private ?ErrorHandler $temporaryErrorHandler = null;
     private ?string $bootstrapGroup = 'bootstrap-web';
+    private ?string $eventsGroup = 'events-web';
 
     /**
      * @param string $rootPath The absolute path to the project root.
@@ -83,6 +84,36 @@ final class HttpApplicationRunner implements RunnerInterface
     {
         $new = clone $this;
         $new->bootstrapGroup = null;
+        return $new;
+    }
+
+    /**
+     * Returns a new instance with the specified configuration group of events name for check.
+     *
+     * Note: The configuration of events is checked only in debug mode.
+     *
+     * @param string $eventsGroup The configuration group name of events for check.
+     *
+     * @return self
+     */
+    public function withCheckEvents(string $eventsGroup): self
+    {
+        $new = clone $this;
+        $new->eventsGroup = $eventsGroup;
+        return $new;
+    }
+
+    /**
+     * Returns a new instance and disables checking of the event configuration group.
+     *
+     * Note: The configuration of events is checked only in debug mode.
+     *
+     * @return self
+     */
+    public function withoutCheckEvents(): self
+    {
+        $new = clone $this;
+        $new->eventsGroup = null;
         return $new;
     }
 
@@ -162,9 +193,9 @@ final class HttpApplicationRunner implements RunnerInterface
             $this->runBootstrap($container, $config->get($this->bootstrapGroup));
         }
 
-        if ($this->debug && $config->has('events-web')) {
+        if ($this->debug && $this->eventsGroup !== null) {
             /** @psalm-suppress MixedMethodCall */
-            $container->get(ListenerConfigurationChecker::class)->check($config->get('events-web'));
+            $container->get(ListenerConfigurationChecker::class)->check($config->get($this->eventsGroup));
         }
 
         /** @var Application $application */

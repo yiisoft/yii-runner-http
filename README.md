@@ -65,6 +65,20 @@ $runner = $runner->withBootstrap('my-bootstrap-config-group-name');
 $runner = $runner->withoutBootstrap();
 ```
 
+In debug mode, event configurations are checked, to override, use the following setters:
+
+```php
+/**
+ * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
+ */
+
+// Configuration group name of events by default is "events-web".
+$runner = $runner->withCheckEvents('my-events-config-group-name');
+
+// Disables checking of the event configuration group.
+$runner = $runner->withoutCheckEvents();
+```
+
 If the configuration instance settings differ from the default, such as configuration group names,
 you can specify a customized configuration instance:
 
