@@ -49,7 +49,9 @@ require_once __DIR__ . '/autoload.php';
 ### Additional configuration
 
 By default, the `HttpApplicationRunner` is configured to work with Yii application templates.
-You can override the default configuration using immutable setters:
+You can override the default configuration using immutable setters.
+
+Override the name of the bootstrap configuration group as follows:
 
 ```php
 /**
@@ -63,7 +65,8 @@ $runner = $runner->withBootstrap('my-bootstrap-config-group-name');
 $runner = $runner->withoutBootstrap();
 ```
 
-For more flexible configuration, you can specify a customized configuration instance:
+If the configuration instance settings differ from the default, such as configuration group names,
+you can specify a customized configuration instance:
 
 ```php
 /**
