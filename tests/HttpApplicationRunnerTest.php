@@ -70,7 +70,7 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testRunWithoutBootstrapAndCheckEvents(): void
     {
-        $runner = $this->runner->withoutBootstrap()->withoutCheckEvents();
+        $runner = $this->runner->withoutBootstrap()->withoutCheckingEvents();
 
         $this->expectOutputString('OK');
 
@@ -119,8 +119,8 @@ final class HttpApplicationRunnerTest extends TestCase
     {
         $this->assertNotSame($this->runner, $this->runner->withBootstrap('bootstrap-web'));
         $this->assertNotSame($this->runner, $this->runner->withoutBootstrap());
-        $this->assertNotSame($this->runner, $this->runner->withCheckEvents('events-web'));
-        $this->assertNotSame($this->runner, $this->runner->withoutCheckEvents());
+        $this->assertNotSame($this->runner, $this->runner->withCheckingEvents('events-web'));
+        $this->assertNotSame($this->runner, $this->runner->withoutCheckingEvents());
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
         $this->assertNotSame($this->runner, $this->runner->withContainer($this->createContainer()));
         $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));

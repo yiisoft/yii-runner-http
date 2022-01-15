@@ -73,10 +73,10 @@ In debug mode, event configurations are checked, to override, use the following 
  */
 
 // Configuration group name of events by default is "events-web".
-$runner = $runner->withCheckEvents('my-events-config-group-name');
+$runner = $runner->withCheckingEvents('my-events-config-group-name');
 
 // Disables checking of the event configuration group.
-$runner = $runner->withoutCheckEvents();
+$runner = $runner->withoutCheckingEvents();
 ```
 
 If the configuration instance settings differ from the default, such as configuration group names,

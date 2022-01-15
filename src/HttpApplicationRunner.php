@@ -96,7 +96,7 @@ final class HttpApplicationRunner implements RunnerInterface
      *
      * @return self
      */
-    public function withCheckEvents(string $eventsGroup): self
+    public function withCheckingEvents(string $eventsGroup): self
     {
         $new = clone $this;
         $new->eventsGroup = $eventsGroup;
@@ -110,7 +110,7 @@ final class HttpApplicationRunner implements RunnerInterface
      *
      * @return self
      */
-    public function withoutCheckEvents(): self
+    public function withoutCheckingEvents(): self
     {
         $new = clone $this;
         $new->eventsGroup = null;
