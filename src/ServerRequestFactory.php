@@ -161,6 +161,10 @@ final class ServerRequestFactory
             $uri = $uri->withScheme('http');
         }
 
+        $uri = isset($server['SERVER_PORT'])
+            ? $uri->withPort((int)$server['SERVER_PORT'])
+            : $uri->withPort($uri->getScheme() === 'https' ? 443 : 80);
+
         if (isset($server['HTTP_HOST'])) {
             $uri = preg_match('/^(.+):(\d+)$/', $server['HTTP_HOST'], $matches) === 1
                 ? $uri->withHost($matches[1])->withPort((int) $matches[2])
@@ -168,10 +172,6 @@ final class ServerRequestFactory
             ;
         } elseif (isset($server['SERVER_NAME'])) {
             $uri = $uri->withHost($server['SERVER_NAME']);
-        }
-
-        if (isset($server['SERVER_PORT'])) {
-            $uri = $uri->withPort((int) $server['SERVER_PORT']);
         }
 
         if (isset($server['REQUEST_URI'])) {
