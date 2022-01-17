@@ -192,7 +192,7 @@ final class SapiEmitterTest extends TestCase
     {
         $exception = new HeadersHaveBeenSentException();
 
-        $this->assertSame('HTTP headers have been sent', $exception->getName());
+        $this->assertSame('HTTP headers have been sent.', $exception->getName());
         $this->assertStringStartsWith('Headers already sent', $exception->getSolution());
         $this->assertStringEndsWith(
             "Emitter can't send headers once the headers block has already been sent.",

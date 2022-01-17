@@ -13,7 +13,7 @@ final class HeadersHaveBeenSentException extends Exception implements FriendlyEx
 {
     public function getName(): string
     {
-        return 'HTTP headers have been sent';
+        return 'HTTP headers have been sent.';
     }
 
     public function getSolution(): ?string
