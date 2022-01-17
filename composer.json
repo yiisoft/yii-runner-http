@@ -27,8 +27,6 @@
             "url": "https://github.com/sponsors/yiisoft"
         }
     ],
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "require": {
         "php": "^8.0",
         "yiisoft/config": "^1.1",
@@ -40,7 +38,7 @@
         "yiisoft/log": "^1.0",
         "yiisoft/log-target-file": "^1.0",
         "yiisoft/yii-http": "^1.0",
-        "yiisoft/yii-runner": "@dev"
+        "yiisoft/yii-runner": "^1.0"
     },
     "require-dev": {
         "httpsoft/http-message": "^1.0",
