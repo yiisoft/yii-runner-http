@@ -95,7 +95,9 @@ final class HttpApplicationRunner extends ApplicationRunner
          * @var ServerRequestInterface
          * @psalm-suppress MixedMethodCall
          */
-        $serverRequest = $container->get(ServerRequestFactory::class)->createFromGlobals();
+        $serverRequest = $container
+            ->get(ServerRequestFactory::class)
+            ->createFromGlobals();
         $request = $serverRequest->withAttribute('applicationStartTime', $startTime);
 
         try {
@@ -108,7 +110,9 @@ final class HttpApplicationRunner extends ApplicationRunner
              * @var ResponseInterface
              * @psalm-suppress MixedMethodCall
              */
-            $response = $container->get(ErrorCatcher::class)->process($request, $handler);
+            $response = $container
+                ->get(ErrorCatcher::class)
+                ->process($request, $handler);
             $this->emit($request, $response);
         } finally {
             $application->afterEmit($response ?? null);
