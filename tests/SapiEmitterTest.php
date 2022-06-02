@@ -45,7 +45,9 @@ final class SapiEmitterTest extends TestCase
         $body = 'Example body';
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], $body);
 
-        $this->createEmitter($bufferSize)->emit($response);
+        $this
+            ->createEmitter($bufferSize)
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(2, $this->getHeaders());
@@ -66,7 +68,9 @@ final class SapiEmitterTest extends TestCase
     {
         $response = $this->createResponse($code, ['X-Test' => 1], 'Example body');
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame($code, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
@@ -79,7 +83,9 @@ final class SapiEmitterTest extends TestCase
         $body = new NotReadableStream();
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(1, $this->getHeaders());
@@ -91,7 +97,9 @@ final class SapiEmitterTest extends TestCase
         $body = new NotWritableStream();
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(1, $this->getHeaders());
@@ -103,7 +111,9 @@ final class SapiEmitterTest extends TestCase
         $body = new NotWritableStream(false);
         $response = $this->createResponse(Status::OK, ['X-Test' => 42], $body);
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(1, $this->getHeaders());
@@ -114,7 +124,9 @@ final class SapiEmitterTest extends TestCase
     {
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], 'Example body');
 
-        $this->createEmitter()->emit($response, true);
+        $this
+            ->createEmitter()
+            ->emit($response, true);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
@@ -126,7 +138,9 @@ final class SapiEmitterTest extends TestCase
     {
         $length = 100;
         $response = $this->createResponse(Status::OK, ['Content-Length' => $length, 'X-Test' => 1], 'Example body');
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertCount(2, $this->getHeaders());
@@ -140,7 +154,9 @@ final class SapiEmitterTest extends TestCase
         $length = 100;
         $response = $this->createResponse(Status::OK, ['Content-Length' => $length, 'X-Test' => 1], '');
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertSame(['X-Test: 1'], $this->getHeaders());
@@ -152,7 +168,9 @@ final class SapiEmitterTest extends TestCase
         $body = 'Example body';
         $response = $this->createResponse(Status::OK, ['Content-length' => 1, 'X-Test' => 1], $body);
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->expectOutputString($body);
     }
@@ -166,7 +184,9 @@ final class SapiEmitterTest extends TestCase
         $body = 'Example body';
         $response = $this->createResponse(Status::OK, [], $body);
 
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
 
         $this->assertSame(['Content-Length: ' . strlen($body)], $this->getHeaders());
         $this->expectOutputString($body);
@@ -185,7 +205,9 @@ final class SapiEmitterTest extends TestCase
         HTTPFunctions::set_headers_sent(true, 'test-file.php', 200);
 
         $this->expectException(HeadersHaveBeenSentException::class);
-        $this->createEmitter()->emit($response);
+        $this
+            ->createEmitter()
+            ->emit($response);
     }
 
     public function testHeadersHaveBeenSentException(): void
@@ -203,7 +225,8 @@ final class SapiEmitterTest extends TestCase
     public function testEmitDuplicateHeaders(): void
     {
         $body = 'Example body';
-        $response = $this->createResponse(Status::OK, [], $body)
+        $response = $this
+            ->createResponse(Status::OK, [], $body)
             ->withHeader('X-Test', '1')
             ->withAddedHeader('X-Test', '2')
             ->withAddedHeader('X-Test', '3; 3.5')
@@ -244,7 +267,9 @@ final class SapiEmitterTest extends TestCase
         if ($body instanceof StreamInterface) {
             $response = $response->withBody($body);
         } elseif (is_string($body)) {
-            $response->getBody()->write($body);
+            $response
+                ->getBody()
+                ->write($body);
         }
 
         return $response;

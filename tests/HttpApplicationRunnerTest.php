@@ -70,7 +70,9 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testRunWithoutBootstrapAndCheckEvents(): void
     {
-        $runner = $this->runner->withoutBootstrap()->withoutCheckingEvents();
+        $runner = $this->runner
+            ->withoutBootstrap()
+            ->withoutCheckingEvents();
 
         $this->expectOutputString('OK');
 
@@ -129,7 +131,7 @@ final class HttpApplicationRunnerTest extends TestCase
     private function createContainer(bool $throwException = false): ContainerInterface
     {
         $containerConfig = ContainerConfig::create()
-                ->withDefinitions($this->createDefinitions($throwException));
+            ->withDefinitions($this->createDefinitions($throwException));
         return new Container($containerConfig);
     }
 
@@ -159,27 +161,29 @@ final class HttpApplicationRunnerTest extends TestCase
                 '__construct()' => [
                     'dispatcher' => DynamicReference::to(
                         static function (ContainerInterface $container) use ($throwException) {
-                            return $container->get(MiddlewareDispatcher::class)->withMiddlewares([
-                                static fn () => new class ($throwException) implements MiddlewareInterface {
-                                    private bool $throwException;
+                            return $container
+                                ->get(MiddlewareDispatcher::class)
+                                ->withMiddlewares([
+                                    static fn () => new class ($throwException) implements MiddlewareInterface {
+                                        private bool $throwException;
 
-                                    public function __construct(bool $throwException)
-                                    {
-                                        $this->throwException = $throwException;
-                                    }
-
-                                    public function process(
-                                        ServerRequestInterface $request,
-                                        RequestHandlerInterface $handler
-                                    ): ResponseInterface {
-                                        if ($this->throwException) {
-                                            throw new Exception('Failure');
+                                        public function __construct(bool $throwException)
+                                        {
+                                            $this->throwException = $throwException;
                                         }
 
-                                        return (new ResponseFactory())->createResponse();
-                                    }
-                                },
-                            ]);
+                                        public function process(
+                                            ServerRequestInterface $request,
+                                            RequestHandlerInterface $handler
+                                        ): ResponseInterface {
+                                            if ($this->throwException) {
+                                                throw new Exception('Failure');
+                                            }
+
+                                            return (new ResponseFactory())->createResponse();
+                                        }
+                                    },
+                                ]);
                         },
                     ),
                     'fallbackHandler' => Reference::to(NotFoundHandler::class),

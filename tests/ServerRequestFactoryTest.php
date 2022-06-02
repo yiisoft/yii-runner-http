@@ -43,7 +43,9 @@ final class ServerRequestFactoryTest extends TestCase
             ],
         ];
 
-        $serverRequest = $this->createServerRequestFactory()->createFromGlobals();
+        $serverRequest = $this
+            ->createServerRequestFactory()
+            ->createFromGlobals();
 
         $firstUploadedFile = $serverRequest->getUploadedFiles()['file1'];
         $this->assertSame($firstFileName, $firstUploadedFile->getClientFilename());
@@ -72,7 +74,9 @@ final class ServerRequestFactoryTest extends TestCase
             'Connection' => ['keep-alive'],
         ];
 
-        $serverRequest = $this->createServerRequestFactory()->createFromGlobals();
+        $serverRequest = $this
+            ->createServerRequestFactory()
+            ->createFromGlobals();
 
         $this->assertSame($expected, $serverRequest->getHeaders());
     }
@@ -82,7 +86,9 @@ final class ServerRequestFactoryTest extends TestCase
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to determine HTTP request method.');
 
-        $this->createServerRequestFactory()->createFromParameters([]);
+        $this
+            ->createServerRequestFactory()
+            ->createFromParameters([]);
     }
 
     public function bodyDataProvider(): array
@@ -106,7 +112,9 @@ final class ServerRequestFactoryTest extends TestCase
     public function testBody(mixed $body, string $expected): void
     {
         $server = ['REQUEST_METHOD' => 'GET'];
-        $request = $this->createServerRequestFactory()->createFromParameters($server, [], [], [], [], [], $body);
+        $request = $this
+            ->createServerRequestFactory()
+            ->createFromParameters($server, [], [], [], [], [], $body);
 
         $this->assertSame($expected, (string) $request->getBody());
     }
@@ -137,7 +145,9 @@ final class ServerRequestFactoryTest extends TestCase
             . 'must be instance of StreamInterface, resource or null.',
         );
 
-        $this->createServerRequestFactory()->createFromParameters($server, [], [], [], [], [], $body);
+        $this
+            ->createServerRequestFactory()
+            ->createFromParameters($server, [], [], [], [], [], $body);
     }
 
     public function hostParsingDataProvider(): array
@@ -390,15 +400,27 @@ final class ServerRequestFactoryTest extends TestCase
      */
     public function testHostParsingFromParameters(array $serverParams, array $expectParams): void
     {
-        $serverRequest = $this->createServerRequestFactory()->createFromParameters($serverParams);
+        $serverRequest = $this
+            ->createServerRequestFactory()
+            ->createFromParameters($serverParams);
 
-        $this->assertSame($expectParams['host'], $serverRequest->getUri()->getHost());
-        $this->assertSame($expectParams['port'], $serverRequest->getUri()->getPort());
+        $this->assertSame($expectParams['host'], $serverRequest
+            ->getUri()
+            ->getHost());
+        $this->assertSame($expectParams['port'], $serverRequest
+            ->getUri()
+            ->getPort());
         $this->assertSame($expectParams['method'], $serverRequest->getMethod());
         $this->assertSame($expectParams['protocol'], $serverRequest->getProtocolVersion());
-        $this->assertSame($expectParams['scheme'], $serverRequest->getUri()->getScheme());
-        $this->assertSame($expectParams['path'], $serverRequest->getUri()->getPath());
-        $this->assertSame($expectParams['query'], $serverRequest->getUri()->getQuery());
+        $this->assertSame($expectParams['scheme'], $serverRequest
+            ->getUri()
+            ->getScheme());
+        $this->assertSame($expectParams['path'], $serverRequest
+            ->getUri()
+            ->getPath());
+        $this->assertSame($expectParams['query'], $serverRequest
+            ->getUri()
+            ->getQuery());
     }
 
     /**
@@ -408,15 +430,27 @@ final class ServerRequestFactoryTest extends TestCase
     public function testHostParsingFromGlobals(array $serverParams, array $expectParams): void
     {
         $_SERVER = $serverParams;
-        $serverRequest = $this->createServerRequestFactory()->createFromGlobals();
+        $serverRequest = $this
+            ->createServerRequestFactory()
+            ->createFromGlobals();
 
-        $this->assertSame($expectParams['host'], $serverRequest->getUri()->getHost());
-        $this->assertSame($expectParams['port'], $serverRequest->getUri()->getPort());
+        $this->assertSame($expectParams['host'], $serverRequest
+            ->getUri()
+            ->getHost());
+        $this->assertSame($expectParams['port'], $serverRequest
+            ->getUri()
+            ->getPort());
         $this->assertSame($expectParams['method'], $serverRequest->getMethod());
         $this->assertSame($expectParams['protocol'], $serverRequest->getProtocolVersion());
-        $this->assertSame($expectParams['scheme'], $serverRequest->getUri()->getScheme());
-        $this->assertSame($expectParams['path'], $serverRequest->getUri()->getPath());
-        $this->assertSame($expectParams['query'], $serverRequest->getUri()->getQuery());
+        $this->assertSame($expectParams['scheme'], $serverRequest
+            ->getUri()
+            ->getScheme());
+        $this->assertSame($expectParams['path'], $serverRequest
+            ->getUri()
+            ->getPath());
+        $this->assertSame($expectParams['query'], $serverRequest
+            ->getUri()
+            ->getQuery());
     }
 
     private function createServerRequestFactory(): ServerRequestFactory
