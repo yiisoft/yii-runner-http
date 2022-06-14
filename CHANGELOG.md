@@ -2,7 +2,7 @@
 
 ## 1.1.0 under development
 
-- Enh #22: Raise `yiisoft/log` version to ^2.0 (rustamwin)
+- Chg #22: Raise `yiisoft/log` version to ^2.0 (rustamwin)
 
 ## 1.0.0 January 17, 2022
 
