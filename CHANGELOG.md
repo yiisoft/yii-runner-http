@@ -1,6 +1,6 @@
 # Yii Runner Http Change Log
 
-## 1.0.1 under development
+## 1.0.1 June 17, 2022
 
 - Enh #23: Add support for `yiisoft/definitions` version `^2.0` (vjik)
 
