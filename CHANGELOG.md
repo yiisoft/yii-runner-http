@@ -2,7 +2,7 @@
 
 ## 1.1.1 under development
 
-- no changes in this release.
+- Enh #27: Add support for `yiisoft/log-target-file` of version `^2.0` (@vjik)
 
 ## 1.1.0 June 17, 2022
 
