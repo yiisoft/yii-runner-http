@@ -1,5 +1,9 @@
 # Yii Runner Http Change Log
 
+## 1.1.2 under development
+
+- no changes in this release.
+
 ## 1.1.1 July 21, 2022
 
 - Enh #27: Add support for `yiisoft/log-target-file` of version `^2.0` (@vjik)
