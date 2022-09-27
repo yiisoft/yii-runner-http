@@ -13,7 +13,6 @@ namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 use function array_key_exists;
 use function explode;
 use function strtolower;
-use function strpos;
 
 final class HTTPFunctions
 {
@@ -61,7 +60,7 @@ final class HTTPFunctions
      */
     public static function header(string $string, bool $replace = true, ?int $http_response_code = null): void
     {
-        if (strpos($string, 'HTTP/') !== 0) {
+        if (!str_starts_with($string, 'HTTP/')) {
             $header = strtolower(explode(':', $string, 2)[0]);
             if ($replace || !array_key_exists($header, self::$headers)) {
                 self::$headers[$header] = [];
