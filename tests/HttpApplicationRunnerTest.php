@@ -160,7 +160,7 @@ final class HttpApplicationRunnerTest extends TestCase
             Application::class => [
                 '__construct()' => [
                     'dispatcher' => DynamicReference::to(
-                        static fn(ContainerInterface $container) => $container
+                        static fn (ContainerInterface $container) => $container
                             ->get(MiddlewareDispatcher::class)
                             ->withMiddlewares([
                                 static fn () => new class ($throwException) implements MiddlewareInterface {

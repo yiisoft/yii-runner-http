@@ -13,7 +13,6 @@ namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 use function array_key_exists;
 use function explode;
 use function strtolower;
-use function strpos;
 
 final class HTTPFunctions
 {

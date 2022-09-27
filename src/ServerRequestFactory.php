@@ -24,7 +24,6 @@ use function is_resource;
 use function is_string;
 use function preg_match;
 use function str_replace;
-use function strncmp;
 use function strtolower;
 use function substr;
 use function ucwords;
