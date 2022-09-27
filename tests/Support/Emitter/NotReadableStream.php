@@ -7,7 +7,7 @@ namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
 
-final class NotReadableStream implements StreamInterface
+final class NotReadableStream implements StreamInterface, \Stringable
 {
     public function __toString(): string
     {
