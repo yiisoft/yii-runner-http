@@ -24,7 +24,6 @@ use function is_resource;
 use function is_string;
 use function preg_match;
 use function str_replace;
-use function strncmp;
 use function strtolower;
 use function substr;
 use function ucwords;
@@ -34,21 +33,12 @@ use function ucwords;
  */
 final class ServerRequestFactory
 {
-    private ServerRequestFactoryInterface $serverRequestFactory;
-    private UriFactoryInterface $uriFactory;
-    private UploadedFileFactoryInterface $uploadedFileFactory;
-    private StreamFactoryInterface $streamFactory;
-
     public function __construct(
-        ServerRequestFactoryInterface $serverRequestFactory,
-        UriFactoryInterface $uriFactory,
-        UploadedFileFactoryInterface $uploadedFileFactory,
-        StreamFactoryInterface $streamFactory
+        private ServerRequestFactoryInterface $serverRequestFactory,
+        private UriFactoryInterface $uriFactory,
+        private UploadedFileFactoryInterface $uploadedFileFactory,
+        private StreamFactoryInterface $streamFactory
     ) {
-        $this->serverRequestFactory = $serverRequestFactory;
-        $this->uriFactory = $uriFactory;
-        $this->uploadedFileFactory = $uploadedFileFactory;
-        $this->streamFactory = $streamFactory;
     }
 
     /**
@@ -73,12 +63,6 @@ final class ServerRequestFactory
     /**
      * Creates an instance of a server request from custom parameters.
      *
-     * @param array $server
-     * @param array $headers
-     * @param array $cookies
-     * @param array $get
-     * @param array $post
-     * @param array $files
      * @param resource|StreamInterface|string|null $body
      *
      * @psalm-param array<string, string> $server
@@ -204,7 +188,7 @@ final class ServerRequestFactory
          * @var string $value
          */
         foreach ($_SERVER as $name => $value) {
-            if (strncmp($name, 'REDIRECT_', 9) === 0) {
+            if (str_starts_with($name, 'REDIRECT_')) {
                 $name = substr($name, 9);
 
                 if (array_key_exists($name, $_SERVER)) {
@@ -212,12 +196,12 @@ final class ServerRequestFactory
                 }
             }
 
-            if (strncmp($name, 'HTTP_', 5) === 0) {
+            if (str_starts_with($name, 'HTTP_')) {
                 $headers[$this->normalizeHeaderName(substr($name, 5))] = $value;
                 continue;
             }
 
-            if (strncmp($name, 'CONTENT_', 8) === 0) {
+            if (str_starts_with($name, 'CONTENT_')) {
                 $headers[$this->normalizeHeaderName($name)] = $value;
             }
         }
@@ -290,7 +274,7 @@ final class ServerRequestFactory
 
         try {
             $stream = $this->streamFactory->createStreamFromFile($tempNames);
-        } catch (RuntimeException $e) {
+        } catch (RuntimeException) {
             $stream = $this->streamFactory->createStream();
         }
 

@@ -165,11 +165,8 @@ final class HttpApplicationRunnerTest extends TestCase
                                 ->get(MiddlewareDispatcher::class)
                                 ->withMiddlewares([
                                     static fn () => new class ($throwException) implements MiddlewareInterface {
-                                        private bool $throwException;
-
-                                        public function __construct(bool $throwException)
+                                        public function __construct(private bool $throwException)
                                         {
-                                            $this->throwException = $throwException;
                                         }
 
                                         public function process(

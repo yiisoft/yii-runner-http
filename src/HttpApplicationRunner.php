@@ -53,8 +53,6 @@ final class HttpApplicationRunner extends ApplicationRunner
      * then the error handler configured in your application configuration will be used.
      *
      * @param ErrorHandler $temporaryErrorHandler The temporary error handler instance.
-     *
-     * @return self
      */
     public function withTemporaryErrorHandler(ErrorHandler $temporaryErrorHandler): self
     {
