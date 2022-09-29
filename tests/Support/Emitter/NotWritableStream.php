@@ -6,8 +6,9 @@ namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 
 use Psr\Http\Message\StreamInterface;
 use RuntimeException;
+use Stringable;
 
-final class NotWritableStream implements StreamInterface, \Stringable
+final class NotWritableStream implements StreamInterface, Stringable
 {
     public function __construct(private bool $seekable = true)
     {
