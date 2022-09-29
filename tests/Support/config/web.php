@@ -26,8 +26,8 @@ use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\PlainTextRenderer;
 use Yiisoft\ErrorHandler\ThrowableRendererInterface;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
-use Yiisoft\Middleware\Dispatcher\MiddlewareFactory;
-use Yiisoft\Middleware\Dispatcher\MiddlewareFactoryInterface;
+use Yiisoft\Middleware\Dispatcher\WrapperFactory;
+use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
@@ -36,7 +36,7 @@ use Yiisoft\Yii\Http\Handler\NotFoundHandler;
 return [
     EventDispatcherInterface::class => SimpleEventDispatcher::class,
     LoggerInterface::class => SimpleLogger::class,
-    MiddlewareFactoryInterface::class => MiddlewareFactory::class,
+    WrapperFactoryInterface::class => WrapperFactory::class,
     ResponseFactoryInterface::class => ResponseFactory::class,
     ServerRequestFactoryInterface::class => ServerRequestFactory::class,
     StreamFactoryInterface::class => StreamFactory::class,
