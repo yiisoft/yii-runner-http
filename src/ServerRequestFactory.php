@@ -33,7 +33,12 @@ use function ucwords;
  */
 final class ServerRequestFactory
 {
-    public function __construct(private ServerRequestFactoryInterface $serverRequestFactory, private UriFactoryInterface $uriFactory, private UploadedFileFactoryInterface $uploadedFileFactory, private StreamFactoryInterface $streamFactory)
+    public function __construct(
+        private ServerRequestFactoryInterface $serverRequestFactory, 
+        private UriFactoryInterface $uriFactory, 
+        private UploadedFileFactoryInterface $uploadedFileFactory, 
+        private StreamFactoryInterface $streamFactory
+    )
     {
     }
 
