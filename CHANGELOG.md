@@ -1,8 +1,8 @@
-# Yii Runner Http Change Log
+# Yii Runner HTTP Change Log
 
 ## 1.1.2 under development
 
-- no changes in this release.
+- Bug #32: Add `psr/http-factory` and `psr/http-message` dependencies (@xepozz)
 
 ## 1.1.1 July 21, 2022
 
@@ -15,7 +15,7 @@
 
 ## 1.0.1 June 17, 2022
 
-- Enh #23: Add support for `yiisoft/definitions` version `^2.0` (vjik)
+- Enh #23: Add support for `yiisoft/definitions` version `^2.0` (@vjik)
 
 ## 1.0.0 January 17, 2022
 
