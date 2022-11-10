@@ -3,6 +3,7 @@
 ## 1.1.2 under development
 
 - Bug #32: Add `psr/http-factory` and `psr/http-message` dependencies (@xepozz)
+- Enh #33: Add support for `yiisoft/definitions` version `^3.0` (@vjik)
 
 ## 1.1.1 July 21, 2022
 
