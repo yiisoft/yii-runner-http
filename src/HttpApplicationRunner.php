@@ -82,9 +82,8 @@ final class HttpApplicationRunner extends ApplicationRunner
         $actualErrorHandler = $container->get(ErrorHandler::class);
         $this->registerErrorHandler($actualErrorHandler, $temporaryErrorHandler);
 
-        $config = $this->getConfig();
-        $this->runBootstrap($config, $container);
-        $this->checkEvents($config, $container);
+        $this->runBootstrap();
+        $this->checkEvents();
 
         /** @var Application $application */
         $application = $container->get(Application::class);
