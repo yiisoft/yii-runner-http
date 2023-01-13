@@ -58,7 +58,7 @@ final class HttpApplicationRunnerTest extends TestCase
         parent::setUp();
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->runner = new HttpApplicationRunner(__DIR__ . '/Support', true, null);
+        $this->runner = new HttpApplicationRunner(__DIR__ . '/Support', true);
     }
 
     public function testRun(): void

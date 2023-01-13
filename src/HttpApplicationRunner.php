@@ -37,13 +37,23 @@ final class HttpApplicationRunner extends ApplicationRunner
     /**
      * @param string $rootPath The absolute path to the project root.
      * @param bool $debug Whether the debug mode is enabled.
-     * @param string|null $environment The environment name.
+     * @param string $containerConfigGroup The container configuration group name.
+     * @param string|null $bootstrapGroup The bootstrap configuration group name.
+     * @param string|null $eventsGroup The event configuration group name to check. The configuration of events is
+     * checked in debug mode only.
      */
-    public function __construct(string $rootPath, bool $debug, ?string $environment)
+    public function __construct(
+        string $rootPath,
+        bool $debug,
+        protected string $containerConfigGroup = 'web',
+        ?string $environment = null,
+        ?string $bootstrapGroup = 'bootstrap-web',
+        ?string $eventsGroup = 'events-web',
+    )
     {
-        parent::__construct($rootPath, $debug, 'web', $environment);
-        $this->bootstrapGroup = 'bootstrap-web';
-        $this->eventsGroup = 'events-web';
+        parent::__construct($rootPath, $debug, $containerConfigGroup, $environment);
+        $this->bootstrapGroup = $bootstrapGroup;
+        $this->eventsGroup = $eventsGroup;
     }
 
     /**
