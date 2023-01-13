@@ -49,8 +49,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         ?string $environment = null,
         ?string $bootstrapGroup = 'bootstrap-web',
         ?string $eventsGroup = 'events-web',
-    )
-    {
+    ) {
         parent::__construct($rootPath, $debug, $containerConfigGroup, $environment);
         $this->bootstrapGroup = $bootstrapGroup;
         $this->eventsGroup = $eventsGroup;
