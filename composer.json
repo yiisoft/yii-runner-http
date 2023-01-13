@@ -50,7 +50,7 @@
         "roave/infection-static-analysis-plugin": "^1.25",
         "spatie/phpunit-watcher": "^1.23",
         "vimeo/psalm": "^4.30|^5.2",
-        "yiisoft/middleware-dispatcher": "^4.0",
+        "yiisoft/middleware-dispatcher": "^5.0",
         "yiisoft/test-support": "^3.0"
     },
     "autoload": {
