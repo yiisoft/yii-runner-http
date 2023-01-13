@@ -41,14 +41,15 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string|null $bootstrapGroup The bootstrap configuration group name.
      * @param string|null $eventsGroup The event configuration group name to check. The configuration of events is
      * checked in debug mode only.
+     * @param string|null $environment The environment name.
      */
     public function __construct(
         string $rootPath,
         bool $debug,
         string $containerConfigGroup = 'web',
-        ?string $environment = null,
         ?string $bootstrapGroup = 'bootstrap-web',
         ?string $eventsGroup = 'events-web',
+        ?string $environment = null,
     ) {
         parent::__construct($rootPath, $debug, $containerConfigGroup, $environment);
         $this->bootstrapGroup = $bootstrapGroup;
