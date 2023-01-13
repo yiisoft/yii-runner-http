@@ -45,7 +45,7 @@ final class HttpApplicationRunner extends ApplicationRunner
     public function __construct(
         string $rootPath,
         bool $debug,
-        protected string $containerConfigGroup = 'web',
+        string $containerConfigGroup = 'web',
         ?string $environment = null,
         ?string $bootstrapGroup = 'bootstrap-web',
         ?string $eventsGroup = 'events-web',
