@@ -3,9 +3,9 @@
 ## 1.2.0 under development
 
 - Enh #39: Adapt to `yiisoft/yii-runner` of version `^2.0` (@vjik)
-- New #40: In the `HttpApplicationRunner` constructor make parameter "environment" optional (`null` by default) and add
-  new parameters that set config group names for container, bootstrap and events (@vjik)
-- New #42: In the `HttpApplicationRunner` constructor add parameter that set config params group name (@vjik)
+- New #40: In the `HttpApplicationRunner` constructor make parameter "environment" optional, default `null` (@vjik)
+- New #43: Add parameters `$useBootstrap`, `$checkEvents` and `$configGroupPostfix` to the `HttpApplicationRunner`
+  constructor (@vjik)
 
 ## 1.1.2 November 10, 2022
 

@@ -70,9 +70,12 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testRunWithoutBootstrapAndCheckEvents(): void
     {
-        $runner = $this->runner
-            ->withoutBootstrap()
-            ->withoutCheckingEvents();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            debug: true,
+            useBootstrap: false,
+            checkEvents: false
+        );
 
         $this->expectOutputString('OK');
 
@@ -119,10 +122,6 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testImmutability(): void
     {
-        $this->assertNotSame($this->runner, $this->runner->withBootstrap('bootstrap-web'));
-        $this->assertNotSame($this->runner, $this->runner->withoutBootstrap());
-        $this->assertNotSame($this->runner, $this->runner->withCheckingEvents('events-web'));
-        $this->assertNotSame($this->runner, $this->runner->withoutCheckingEvents());
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
         $this->assertNotSame($this->runner, $this->runner->withContainer($this->createContainer()));
         $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));
