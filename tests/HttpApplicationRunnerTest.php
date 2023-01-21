@@ -73,8 +73,7 @@ final class HttpApplicationRunnerTest extends TestCase
         $runner = new HttpApplicationRunner(
             rootPath: __DIR__ . '/Support',
             debug: true,
-            useBootstrap: false,
-            checkEvents: false
+            checkEvents: false,
         );
 
         $this->expectOutputString('OK');
@@ -136,7 +135,7 @@ final class HttpApplicationRunnerTest extends TestCase
 
     private function createConfig(): Config
     {
-        return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'));
+        return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'), paramsGroup: 'params-web');
     }
 
     private function createDefinitions(bool $throwException): array

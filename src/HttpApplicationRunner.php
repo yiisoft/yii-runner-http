@@ -37,22 +37,46 @@ final class HttpApplicationRunner extends ApplicationRunner
     /**
      * @param string $rootPath The absolute path to the project root.
      * @param bool $debug Whether the debug mode is enabled.
-     * @param string $paramsConfigGroup The config parameters group name.
-     * @param string $containerConfigGroup The container configuration group name.
-     * @param string|null $bootstrapGroup The bootstrap configuration group name.
-     * @param string|null $eventsGroup The event configuration group name to check. The configuration of events is
+     * @param string $bootstrapGroup The bootstrap configuration group name.
+     * @param string $diGroup The container configuration group name.
+     * @param string $paramsGroup The config parameters group name.
+     * @param string $eventsGroup The event configuration group name to check. The configuration of events is
      * checked in debug mode only.
      * @param string|null $environment The environment name.
+     *
+     * @psalm-param list<string> $nestedParamsGroups
+     * @psalm-param list<string> $nestedEventsGroups
      */
     public function __construct(
         string $rootPath,
-        bool $debug,
-        bool $useBootstrap = true,
-        bool $checkEvents = true,
-        ?string $configGroupPostfix = 'web',
+        bool $debug = false,
+        bool $checkEvents = false,
         ?string $environment = null,
+        string $bootstrapGroup = 'bootstrap-web',
+        string $eventsGroup = 'events-web',
+        string $diGroup = 'di-web',
+        string $diProvidersGroup = 'di-providers-web',
+        string $diDelegatesGroup = 'di-delegates-web',
+        string $diTagsGroup = 'di-tags-web',
+        string $paramsGroup = 'params-web',
+        array $nestedParamsGroups = ['params'],
+        array $nestedEventsGroups = ['events'],
     ) {
-        parent::__construct($rootPath, $debug, $useBootstrap, $checkEvents, $configGroupPostfix, $environment);
+        parent::__construct(
+            $rootPath,
+            $debug,
+            $checkEvents,
+            $environment,
+            $bootstrapGroup,
+            $eventsGroup,
+            $diGroup,
+            $diProvidersGroup,
+            $diDelegatesGroup,
+            $diTagsGroup,
+            $paramsGroup,
+            $nestedParamsGroups,
+            $nestedEventsGroups,
+        );
     }
 
     /**
