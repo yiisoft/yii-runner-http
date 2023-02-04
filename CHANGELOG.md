@@ -5,7 +5,7 @@
 - Enh #39: Adapt to `yiisoft/yii-runner` of version `^2.0` (@vjik)
 - New #40: In the `HttpApplicationRunner` constructor make parameter "environment" optional, default `null` (@vjik)
 - New #42, #43: Add ability to configure all config group names (@vjik)
-- New #43: Add parameter `$checkEvents` to `ApplicationRunner` constructor (@vjik)
+- New #43: Add parameter `$checkEvents` to `HttpApplicationRunner` constructor (@vjik)
 - New #43: In the `HttpApplicationRunner` constructor make parameter "debug" optional, default `false` (@vjik)
 
 ## 1.1.2 November 10, 2022
