@@ -54,7 +54,7 @@ By default, HTTP runner .
 
 ### Additional configuration
 
-By default, the `HttpApplicationRunner` is configured to work with Yii application templates and follows to
+By default, the `HttpApplicationRunner` is configured to work with Yii application templates and follows the
 [config groups convention](https://github.com/yiisoft/docs/blob/master/022-config-groups.md).
 
 You can override the default configuration using constructor parameters and immutable setters.
