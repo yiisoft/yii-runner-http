@@ -50,7 +50,6 @@ require_once __DIR__ . '/autoload.php';
     environment: $_ENV['YII_ENV']
 ))->run();
 ```
-By default, HTTP runner .
 
 ### Additional configuration
 
