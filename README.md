@@ -82,10 +82,10 @@ You can override the default configuration using constructor parameters and immu
 
 `$paramsGroup` — the config parameters group name.
 
-`$nestedParamsGroups` — configuration group names that included to config parameters group. This is needed for recursive
-merge parameters.
+`$nestedParamsGroups` — configuration group names that are included into config parameters group. This is needed for
+recursive merge parameters.
  
-`$nestedEventsGroups` — configuration group names that included to events' configuration group. This is needed for 
+`$nestedEventsGroups` — configuration group names that are included into events' configuration group. This is needed for
 reverse and recursive merge events' configurations.
 
 #### Immutable setters

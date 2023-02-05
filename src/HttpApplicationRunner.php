@@ -46,10 +46,10 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string $diDelegatesGroup The container delegates' configuration group name.
      * @param string $diTagsGroup The container tags' configuration group name.
      * @param string $paramsGroup The configuration parameters group name.
-     * @param array $nestedParamsGroups Configuration group names that included into configuration parameters group.
+     * @param array $nestedParamsGroups Configuration group names that are included into configuration parameters group.
      * This is needed for recursive merging of parameters.
-     * @param array $nestedEventsGroups Configuration group names that included into events' configuration group. This
-     * is needed for reverse and recursive merge of events' configurations.
+     * @param array $nestedEventsGroups Configuration group names that are included into events' configuration group.
+     * This is needed for reverse and recursive merge of events' configurations.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
