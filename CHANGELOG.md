@@ -1,13 +1,17 @@
 # Yii Runner HTTP Change Log
 
+## 2.0.1 under development
+
+- no changes in this release.
+
 ## 2.0.0 February 19, 2023
 
-- Chg #39, #43: Raise required version of `yiisoft/yii-runner` to `^2.0`, `yiisoft/log-target-file` to `^3.0` 
-  and `yiisoft/error-handler` to `^3.0` (@vjik)
 - New #40: In the `HttpApplicationRunner` constructor make parameter "environment" optional, default `null` (@vjik)
 - New #42, #43: Add ability to configure all config group names (@vjik)
 - New #43: Add parameter `$checkEvents` to `HttpApplicationRunner` constructor (@vjik)
 - New #43: In the `HttpApplicationRunner` constructor make parameter "debug" optional, default `false` (@vjik)
+- Chg #39, #43: Raise required version of `yiisoft/yii-runner` to `^2.0`, `yiisoft/log-target-file` to `^3.0`
+  and `yiisoft/error-handler` to `^3.0` (@vjik)
 
 ## 1.1.2 November 10, 2022
 
