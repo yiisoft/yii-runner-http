@@ -26,7 +26,7 @@ The package contains a bootstrap for running Yii3 HTTP application.
 The package could be installed with composer:
 
 ```shell
-composer require yiisoft/yii-runner-http --prefer-dist
+composer require yiisoft/yii-runner-http
 ```
 
 ## General usage
@@ -43,44 +43,54 @@ use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
 require_once __DIR__ . '/autoload.php';
 
-(new HttpApplicationRunner(__DIR__, $_ENV['YII_DEBUG'], $_ENV['YII_ENV']))->run();
+(new HttpApplicationRunner(
+    rootPath: __DIR__, 
+    debug: $_ENV['YII_DEBUG'],
+    checkEvents: $_ENV['YII_DEBUG'],
+    environment: $_ENV['YII_ENV']
+))->run();
 ```
 
 ### Additional configuration
 
-By default, the `HttpApplicationRunner` is configured to work with Yii application templates.
-You can override the default configuration using immutable setters.
+By default, the `HttpApplicationRunner` is configured to work with Yii application templates and follows the
+[config groups convention](https://github.com/yiisoft/docs/blob/master/022-config-groups.md).
 
-Override the name of the bootstrap configuration group as follows:
+You can override the default configuration using constructor parameters and immutable setters.
 
-```php
-/**
- * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
- */
+#### Constructor parameters
 
-// Bootstrap configuration group name by default is "bootstrap-web".
-$runner = $runner->withBootstrap('my-bootstrap-config-group-name');
+`$rootPath` — the absolute path to the project root.
 
-// Disables the use of bootstrap configuration group.
-$runner = $runner->withoutBootstrap();
-```
+`$debug` — whether the debug mode is enabled.
 
-In debug mode, event configurations are checked, to override, use the following setters:
+`$checkEvents` — whether check events' configuration.
 
-```php
-/**
- * @var Yiisoft\Yii\Runner\Http\HttpApplicationRunner $runner
- */
+`$environment` — the environment name.
 
-// Configuration group name of events by default is "events-web".
-$runner = $runner->withCheckingEvents('my-events-config-group-name');
+`$bootstrapGroup` — the bootstrap configuration group name.
 
-// Disables checking of the event configuration group.
-$runner = $runner->withoutCheckingEvents();
-```
+`$eventsGroup` — the events' configuration group name.
 
-If the configuration instance settings differ from the default, such as configuration group names,
-you can specify a customized configuration instance:
+`$diGroup` — the container definitions' configuration group name.
+
+`$diProvidersGroup` — the container providers' configuration group name.
+
+`$diDelegatesGroup` — the container delegates' configuration group name.
+
+`$diTagsGroup` — the container tags' configuration group name.
+
+`$paramsGroup` — the config parameters group name.
+
+`$nestedParamsGroups` — configuration group names that are included into config parameters group. This is needed for
+recursive merge parameters.
+ 
+`$nestedEventsGroups` — configuration group names that are included into events' configuration group. This is needed for
+reverse and recursive merge events' configurations.
+
+#### Immutable setters
+
+If the configuration instance settings differ from the default you can specify a customized configuration instance:
 
 ```php
 /**

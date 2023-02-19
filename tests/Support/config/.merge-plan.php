@@ -5,14 +5,14 @@ declare(strict_types=1);
 // Do not edit. Content will be replaced.
 return [
     '/' => [
-        'params' => [
+        'params-web' => [
             '/' => [
-                'params.php',
+                'params-web.php',
             ],
         ],
-        'web' => [
+        'di-web' => [
             '/' => [
-                'web.php',
+                'di-web.php',
             ],
         ],
         'events-web' => [
@@ -20,14 +20,14 @@ return [
                 'events-web.php',
             ],
         ],
-        'providers-web' => [
+        'di-providers-web' => [
             '/' => [
-                'providers-web.php',
+                'di-providers-web.php',
             ],
         ],
-        'delegates-web' => [
+        'di-delegates-web' => [
             '/' => [
-                'delegates-web.php',
+                'di-delegates-web.php',
             ],
         ],
         'bootstrap-web' => [
