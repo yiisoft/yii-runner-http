@@ -2,12 +2,12 @@
 
 ## 2.0.0 under development
 
-- Enh #39: Adapt to `yiisoft/yii-runner` of version `^2.0` (@vjik)
 - New #40: In the `HttpApplicationRunner` constructor make parameter "environment" optional, default `null` (@vjik)
 - New #42, #43: Add ability to configure all config group names (@vjik)
 - New #43: Add parameter `$checkEvents` to `HttpApplicationRunner` constructor (@vjik)
 - New #43: In the `HttpApplicationRunner` constructor make parameter "debug" optional, default `false` (@vjik)
-
+- Chg #39, #43: Raise required version of `yiisoft/yii-runner` to `^2.0` (@vjik)
+- 
 ## 1.1.2 November 10, 2022
 
 - Enh #33: Add support for `yiisoft/definitions` version `^3.0` (@vjik)
