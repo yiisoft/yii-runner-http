@@ -110,7 +110,15 @@ final class SapiEmitter
         }
 
         while (!$body->eof()) {
-            echo $body->read($this->bufferSize);
+            $output = $body->read($this->bufferSize);
+            if ($output === '') {
+                continue;
+            }
+            echo $output;
+            // flush the output buffer and send echoed messages to the browser
+            while (ob_get_level() > 0) {
+                ob_end_flush();
+            }
             flush();
         }
     }
