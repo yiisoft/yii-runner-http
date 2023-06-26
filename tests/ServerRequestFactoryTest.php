@@ -141,8 +141,7 @@ final class ServerRequestFactoryTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Body parameter for "ServerRequestFactory::createFromParameters()"'
-            . 'must be instance of StreamInterface, resource or null.',
+            'Body parameter for "ServerRequestFactory::createFromParameters()" must be instance of StreamInterface, resource or null.',
         );
 
         $this
