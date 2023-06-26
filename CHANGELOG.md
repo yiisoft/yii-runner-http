@@ -2,7 +2,7 @@
 
 ## 2.1.0 under development
 
-- Eng #52: Add JSON support on parsing the request body (@vjik)
+- Enh #52: Add JSON support on parsing the request body (@vjik)
 - Bug #53: Fix exception message when invalid body parameter (@vjik) 
 
 ## 2.0.0 February 19, 2023
