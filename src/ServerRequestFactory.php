@@ -72,9 +72,8 @@ final class ServerRequestFactory
      * @psalm-param array<string, string|string[]> $headers
      * @psalm-param mixed $body
      *
-     * @return ServerRequestInterface The server request instance.
-     *
      * @throws BadRequestException
+     * @return ServerRequestInterface The server request instance.
      */
     public function createFromParameters(
         array $server,
