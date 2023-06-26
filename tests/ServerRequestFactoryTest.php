@@ -434,38 +434,23 @@ final class ServerRequestFactoryTest extends TestCase
             ->createServerRequestFactory()
             ->createFromGlobals();
 
-        $this->assertSame(
-            $expectParams['host'],
-            $serverRequest
-                ->getUri()
-                ->getHost()
-        );
-        $this->assertSame(
-            $expectParams['port'],
-            $serverRequest
-                ->getUri()
-                ->getPort()
-        );
+        $this->assertSame($expectParams['host'], $serverRequest
+            ->getUri()
+            ->getHost());
+        $this->assertSame($expectParams['port'], $serverRequest
+            ->getUri()
+            ->getPort());
         $this->assertSame($expectParams['method'], $serverRequest->getMethod());
         $this->assertSame($expectParams['protocol'], $serverRequest->getProtocolVersion());
-        $this->assertSame(
-            $expectParams['scheme'],
-            $serverRequest
-                ->getUri()
-                ->getScheme()
-        );
-        $this->assertSame(
-            $expectParams['path'],
-            $serverRequest
-                ->getUri()
-                ->getPath()
-        );
-        $this->assertSame(
-            $expectParams['query'],
-            $serverRequest
-                ->getUri()
-                ->getQuery()
-        );
+        $this->assertSame($expectParams['scheme'], $serverRequest
+            ->getUri()
+            ->getScheme());
+        $this->assertSame($expectParams['path'], $serverRequest
+            ->getUri()
+            ->getPath());
+        $this->assertSame($expectParams['query'], $serverRequest
+            ->getUri()
+            ->getQuery());
     }
 
     public function dataJsonParsing(): array
