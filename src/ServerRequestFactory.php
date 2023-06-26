@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Yii\Runner\Http;
 
 use InvalidArgumentException;
+use JsonException;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -13,12 +14,14 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
+use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 
 use function array_key_exists;
 use function explode;
 use function fopen;
 use function function_exists;
 use function getallheaders;
+use function in_array;
 use function is_array;
 use function is_resource;
 use function is_string;
@@ -70,6 +73,8 @@ final class ServerRequestFactory
      * @psalm-param mixed $body
      *
      * @return ServerRequestInterface The server request instance.
+     *
+     * @throws BadRequestException
      */
     public function createFromParameters(
         array $server,
@@ -102,34 +107,21 @@ final class ServerRequestFactory
             $protocol = str_replace('HTTP/', '', $server['SERVER_PROTOCOL']);
         }
 
-        $request = $request
+        $body = $this->normalizeBody($body);
+        if ($body !== null) {
+            $request = $request->withBody($body);
+        }
+
+        $parsedBody = $this->parseBody($method, $request->getHeaderLine('content-type'), $body, $post);
+        if ($parsedBody !== null) {
+            $request = $request->withParsedBody($parsedBody);
+        }
+
+        return $request
             ->withProtocolVersion($protocol)
             ->withQueryParams($get)
-            ->withParsedBody($post)
             ->withCookieParams($cookies)
-            ->withUploadedFiles($this->getUploadedFilesArray($files))
-        ;
-
-        if ($body === null) {
-            return $request;
-        }
-
-        if ($body instanceof StreamInterface) {
-            return $request->withBody($body);
-        }
-
-        if (is_string($body)) {
-            return $request->withBody($this->streamFactory->createStream($body));
-        }
-
-        if (is_resource($body)) {
-            return $request->withBody($this->streamFactory->createStreamFromResource($body));
-        }
-
-        throw new InvalidArgumentException(
-            'Body parameter for "ServerRequestFactory::createFromParameters()"'
-            . 'must be instance of StreamInterface, resource or null.',
-        );
+            ->withUploadedFiles($this->getUploadedFilesArray($files));
     }
 
     /**
@@ -284,6 +276,60 @@ final class ServerRequestFactory
             (int) $errors,
             $names,
             $types
+        );
+    }
+
+    /**
+     * @throws BadRequestException
+     */
+    private function parseBody(string $method, string $contentType, ?StreamInterface $body, array $post): ?array
+    {
+        if ($body === null || in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+            return null;
+        }
+
+        if (
+            $method === 'POST'
+            && (
+                preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
+                || preg_match('~^multipart/form-data($| |;)~', $contentType)
+            )
+        ) {
+            return $post;
+        }
+
+        if (preg_match('~^application/(|[\S]+-)json($| |;)~', $contentType)) {
+            try {
+                return json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR);
+            } catch (JsonException $e) {
+                throw new BadRequestException(
+                    sprintf(
+                        'Error when parsing JSON request body: %s',
+                        $e->getMessage()
+                    )
+                );
+            }
+        }
+
+        return null;
+    }
+
+    private function normalizeBody(mixed $body): ?StreamInterface
+    {
+        if ($body === null || $body instanceof StreamInterface) {
+            return $body;
+        }
+
+        if (is_string($body)) {
+            return $this->streamFactory->createStream($body);
+        }
+
+        if (is_resource($body)) {
+            return $this->streamFactory->createStreamFromResource($body);
+        }
+
+        throw new InvalidArgumentException(
+            'Body parameter for "ServerRequestFactory::createFromParameters()" must be instance of StreamInterface, resource or null.',
         );
     }
 }
