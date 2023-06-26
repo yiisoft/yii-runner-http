@@ -300,6 +300,7 @@ final class ServerRequestFactory
 
         if (preg_match('~^application/(|[\S]+\+)json($| |;)~', $contentType)) {
             try {
+                /** @var array */
                 return json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new BadRequestException(
