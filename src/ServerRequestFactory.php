@@ -284,7 +284,7 @@ final class ServerRequestFactory
      */
     private function parseBody(string $method, string $contentType, ?StreamInterface $body, array $post): ?array
     {
-        if ($body === null || in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
+        if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
             return null;
         }
 
@@ -298,18 +298,30 @@ final class ServerRequestFactory
             return $post;
         }
 
+        if ($body === null) {
+            return null;
+        }
+
         if (preg_match('~^application/(|[\S]+\+)json($| |;)~', $contentType)) {
             try {
-                /** @var array */
-                return json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR);
+                $parsedBody = json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new BadRequestException(
+                    'Error when parsing JSON request body.',
+                    previous: $e
+                );
+            }
+
+            if (!is_array($parsedBody)) {
+                throw new BadRequestException(
                     sprintf(
-                        'Error when parsing JSON request body: %s',
-                        $e->getMessage()
+                        'Parsed JSON must contain array, but "%s" given.',
+                        get_debug_type($parsedBody)
                     )
                 );
             }
+
+            return $parsedBody;
         }
 
         return null;
