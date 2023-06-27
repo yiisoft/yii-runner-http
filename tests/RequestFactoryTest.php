@@ -9,7 +9,6 @@ use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
 use PHPUnit\Framework\TestCase;
-use ReflectionObject;
 use RuntimeException;
 use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\RequestFactory;
@@ -391,7 +390,6 @@ final class RequestFactoryTest extends TestCase
 
     public function dataJsonParsing(): array
     {
-
         return [
             [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/json'],
             [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/test+json'],
@@ -522,7 +520,7 @@ final class RequestFactoryTest extends TestCase
     }
 
     /**
-     * @return resource|false
+     * @return false|resource
      */
     private function createResource(?string $value)
     {

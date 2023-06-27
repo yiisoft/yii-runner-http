@@ -46,7 +46,7 @@ final class RequestFactory
     /**
      * Creates an instance of a server request from custom parameters.
      *
-     * @param resource|false|null $body
+     * @param false|resource|null $body
      *
      * @return ServerRequestInterface The server request instance.
      */
