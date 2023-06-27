@@ -127,7 +127,7 @@ final class HttpApplicationRunnerTest extends TestCase
     {
         $runner = $this->runner->withContainer(
             $this->createContainer(extraDefinitions: [
-                RequestFactory::class => new class() {
+                RequestFactory::class => new class () {
                     public function create(): ServerRequestInterface
                     {
                         return (new ServerRequestFactory())->createServerRequest('POST', 'https://example.com/');
