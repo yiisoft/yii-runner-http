@@ -30,6 +30,8 @@ use function ucwords;
 
 /**
  * `ServerRequestFactory` creates an instance of a server request.
+ *
+ * @deprecated Will remove in the next major version.
  */
 final class ServerRequestFactory
 {
