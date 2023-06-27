@@ -146,6 +146,7 @@ final class HttpApplicationRunner extends ApplicationRunner
                 $request,
                 (new ResponseFactory())->createResponse(Status::BAD_REQUEST, $e->getMessage()),
             );
+            return;
         }
 
         $request = $request->withAttribute('applicationStartTime', $startTime);

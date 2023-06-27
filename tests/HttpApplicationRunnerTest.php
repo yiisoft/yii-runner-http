@@ -47,7 +47,12 @@ use Yiisoft\Yii\Http\Event\ApplicationShutdown;
 use Yiisoft\Yii\Http\Event\ApplicationStartup;
 use Yiisoft\Yii\Http\Event\BeforeRequest;
 use Yiisoft\Yii\Http\Handler\NotFoundHandler;
+use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
+use Yiisoft\Yii\Runner\Http\RequestFactory;
+use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
+
+include 'Support/Emitter/httpFunctionMocks.php';
 
 final class HttpApplicationRunnerTest extends TestCase
 {
@@ -88,8 +93,7 @@ final class HttpApplicationRunnerTest extends TestCase
         $runner = $this->runner
             ->withContainer($container)
             ->withConfig($this->createConfig())
-            ->withTemporaryErrorHandler($this->createErrorHandler())
-        ;
+            ->withTemporaryErrorHandler($this->createErrorHandler());
 
         $runner->run();
 
@@ -119,6 +123,32 @@ final class HttpApplicationRunnerTest extends TestCase
         $runner->run();
     }
 
+    public function testExceptionOnBodyParsing(): void
+    {
+        $runner = $this->runner->withContainer(
+            $this->createContainer(extraDefinitions: [
+                RequestFactory::class => new class() {
+                    public function create(): ServerRequestInterface
+                    {
+                        return (new ServerRequestFactory())->createServerRequest('POST', 'https://example.com/');
+                    }
+
+                    public function parseBody(ServerRequestInterface $request): ServerRequestInterface
+                    {
+                        throw new BadRequestException('Bad request.');
+                    }
+                },
+            ]),
+        );
+
+        HTTPFunctions::reset();
+
+        $runner->run();
+
+        $this->assertSame(400, HTTPFunctions::http_response_code());
+        $this->assertSame('HTTP/1.1 400 Bad request.', HTTPFunctions::rawHttpHeader());
+    }
+
     public function testImmutability(): void
     {
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
@@ -126,10 +156,10 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));
     }
 
-    private function createContainer(bool $throwException = false): ContainerInterface
+    private function createContainer(bool $throwException = false, array $extraDefinitions = []): ContainerInterface
     {
         $containerConfig = ContainerConfig::create()
-            ->withDefinitions($this->createDefinitions($throwException));
+            ->withDefinitions($this->createDefinitions($throwException, $extraDefinitions));
         return new Container($containerConfig);
     }
 
@@ -138,53 +168,56 @@ final class HttpApplicationRunnerTest extends TestCase
         return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'), paramsGroup: 'params-web');
     }
 
-    private function createDefinitions(bool $throwException): array
+    private function createDefinitions(bool $throwException, array $extraDefinitions): array
     {
-        return [
-            EventDispatcherInterface::class => SimpleEventDispatcher::class,
-            LoggerInterface::class => SimpleLogger::class,
-            WrapperFactoryInterface::class => WrapperFactory::class,
-            ResponseFactoryInterface::class => ResponseFactory::class,
-            ServerRequestFactoryInterface::class => ServerRequestFactory::class,
-            StreamFactoryInterface::class => StreamFactory::class,
-            ThrowableRendererInterface::class => PlainTextRenderer::class,
-            UriFactoryInterface::class => UriFactory::class,
-            UploadedFileFactoryInterface::class => UploadedFileFactory::class,
+        return array_merge(
+            [
+                EventDispatcherInterface::class => SimpleEventDispatcher::class,
+                LoggerInterface::class => SimpleLogger::class,
+                WrapperFactoryInterface::class => WrapperFactory::class,
+                ResponseFactoryInterface::class => ResponseFactory::class,
+                ServerRequestFactoryInterface::class => ServerRequestFactory::class,
+                StreamFactoryInterface::class => StreamFactory::class,
+                ThrowableRendererInterface::class => PlainTextRenderer::class,
+                UriFactoryInterface::class => UriFactory::class,
+                UploadedFileFactoryInterface::class => UploadedFileFactory::class,
 
-            ErrorCatcher::class => [
-                'forceContentType()' => ['text/plain'],
-            ],
+                ErrorCatcher::class => [
+                    'forceContentType()' => ['text/plain'],
+                ],
 
-            Application::class => [
-                '__construct()' => [
-                    'dispatcher' => DynamicReference::to(
-                        static function (ContainerInterface $container) use ($throwException) {
-                            return $container
-                                ->get(MiddlewareDispatcher::class)
-                                ->withMiddlewares([
-                                    static fn () => new class ($throwException) implements MiddlewareInterface {
-                                        public function __construct(private bool $throwException)
-                                        {
-                                        }
-
-                                        public function process(
-                                            ServerRequestInterface $request,
-                                            RequestHandlerInterface $handler
-                                        ): ResponseInterface {
-                                            if ($this->throwException) {
-                                                throw new Exception('Failure');
+                Application::class => [
+                    '__construct()' => [
+                        'dispatcher' => DynamicReference::to(
+                            static function (ContainerInterface $container) use ($throwException) {
+                                return $container
+                                    ->get(MiddlewareDispatcher::class)
+                                    ->withMiddlewares([
+                                        static fn() => new class ($throwException) implements MiddlewareInterface {
+                                            public function __construct(private bool $throwException)
+                                            {
                                             }
 
-                                            return (new ResponseFactory())->createResponse();
-                                        }
-                                    },
-                                ]);
-                        },
-                    ),
-                    'fallbackHandler' => Reference::to(NotFoundHandler::class),
+                                            public function process(
+                                                ServerRequestInterface $request,
+                                                RequestHandlerInterface $handler
+                                            ): ResponseInterface {
+                                                if ($this->throwException) {
+                                                    throw new Exception('Failure');
+                                                }
+
+                                                return (new ResponseFactory())->createResponse();
+                                            }
+                                        },
+                                    ]);
+                            },
+                        ),
+                        'fallbackHandler' => Reference::to(NotFoundHandler::class),
+                    ],
                 ],
             ],
-        ];
+            $extraDefinitions,
+        );
     }
 
     private function createErrorHandler(): ErrorHandler
