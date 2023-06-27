@@ -75,7 +75,7 @@ final class RequestFactory
         $request = $request->withProtocolVersion($protocol);
 
         // Add body
-        $body = $body ?? fopen('php://input', 'rb');
+        $body ??= fopen('php://input', 'rb');
         if ($body !== false) {
             $request = $request->withBody(
                 $this->streamFactory->createStreamFromResource($body)
