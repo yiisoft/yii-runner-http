@@ -39,16 +39,18 @@ final class RequestFactory
         private ServerRequestFactoryInterface $serverRequestFactory,
         private UriFactoryInterface $uriFactory,
         private UploadedFileFactoryInterface $uploadedFileFactory,
-        private StreamFactoryInterface $streamFactory
+        private StreamFactoryInterface $streamFactory,
     ) {
     }
 
     /**
      * Creates an instance of a server request from custom parameters.
      *
+     * @param resource|false|null $body
+     *
      * @return ServerRequestInterface The server request instance.
      */
-    public function create(): ServerRequestInterface
+    public function create($body = null): ServerRequestInterface
     {
         // Create base request
         $method = $_SERVER['REQUEST_METHOD'] ?? null;
@@ -73,7 +75,7 @@ final class RequestFactory
         $request = $request->withProtocolVersion($protocol);
 
         // Add body
-        $body = fopen('php://input', 'rb');
+        $body = $body ?? fopen('php://input', 'rb');
         if ($body !== false) {
             $request = $request->withBody(
                 $this->streamFactory->createStreamFromResource($body)
@@ -251,7 +253,7 @@ final class RequestFactory
     /**
      * @throws BadRequestException
      */
-    private function doParseBody(string $method, string $contentType, ?StreamInterface $body): ?array
+    private function doParseBody(string $method, string $contentType, StreamInterface $body): ?array
     {
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
             return null;
@@ -267,13 +269,14 @@ final class RequestFactory
             return $_POST;
         }
 
-        if ($body === null) {
-            return null;
-        }
-
         if (preg_match('~^application/(|[\S]+\+)json($| |;)~', $contentType)) {
+            $body = (string) $body;
+            if ($body === '') {
+                return null;
+            }
+
             try {
-                $parsedBody = json_decode((string) $body, true, flags: JSON_THROW_ON_ERROR);
+                $parsedBody = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
             } catch (JsonException $e) {
                 throw new BadRequestException(
                     'Error when parsing JSON request body.',

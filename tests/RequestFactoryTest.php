@@ -4,22 +4,19 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http\Tests;
 
-use HttpSoft\Message\ServerRequestFactory as PsrServerRequestFactory;
+use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
-use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use ReflectionObject;
 use RuntimeException;
-use stdClass;
 use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
-use Yiisoft\Yii\Runner\Http\ServerRequestFactory;
+use Yiisoft\Yii\Runner\Http\RequestFactory;
 
 use function fopen;
-use function fwrite;
-use function rewind;
 
-final class RequestFactory
+final class RequestFactoryTest extends TestCase
 {
     public function testUploadedFiles(): void
     {
@@ -44,9 +41,7 @@ final class RequestFactory
             ],
         ];
 
-        $serverRequest = $this
-            ->createServerRequestFactory()
-            ->createFromGlobals();
+        $serverRequest = $this->createRequestFactory()->create();
 
         $firstUploadedFile = $serverRequest->getUploadedFiles()['file1'];
         $this->assertSame($firstFileName, $firstUploadedFile->getClientFilename());
@@ -75,79 +70,41 @@ final class RequestFactory
             'Connection' => ['keep-alive'],
         ];
 
-        $serverRequest = $this
-            ->createServerRequestFactory()
-            ->createFromGlobals();
+        $request = $this->createRequestFactory()->create();
 
-        $this->assertSame($expected, $serverRequest->getHeaders());
+        $this->assertSame($expected, $request->getHeaders());
     }
 
     public function testInvalidMethodException(): void
     {
+        $_SERVER = [];
+
+        $requestFactory = $this->createRequestFactory();
+
         $this->expectException(RuntimeException::class);
         $this->expectExceptionMessage('Unable to determine HTTP request method.');
-
-        $this
-            ->createServerRequestFactory()
-            ->createFromParameters([]);
+        $requestFactory->create();
     }
 
     public function bodyDataProvider(): array
     {
-        $content = 'content';
-        $resource = fopen('php://memory', 'wb+');
-        fwrite($resource, $content);
-        rewind($resource);
-
         return [
-            'StreamFactoryInterface' => [(new StreamFactory())->createStream('content'), $content],
-            'resource' => [$resource, $content],
-            'string' => [$content, $content],
-            'null' => [null, ''],
+            'string' => ['content', 'content'],
+            'null' => ['', null],
         ];
     }
 
     /**
      * @dataProvider bodyDataProvider
      */
-    public function testBody(mixed $body, string $expected): void
+    public function testBody(string $expected, ?string $body): void
     {
-        $server = ['REQUEST_METHOD' => 'GET'];
-        $request = $this
-            ->createServerRequestFactory()
-            ->createFromParameters($server, [], [], [], [], [], $body);
+        $_SERVER = ['REQUEST_METHOD' => 'GET'];
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create($this->createResource($body));
 
         $this->assertSame($expected, (string) $request->getBody());
-    }
-
-    public function invalidBodyDataProvider(): array
-    {
-        return [
-            'int' => [1],
-            'float' => [1.1],
-            'true' => [true],
-            'false' => [false],
-            'empty-array' => [[]],
-            'object' => [new StdClass()],
-            'callable' => [static fn () => null],
-        ];
-    }
-
-    /**
-     * @dataProvider invalidBodyDataProvider
-     */
-    public function testInvalidBodyException(mixed $body): void
-    {
-        $server = ['REQUEST_METHOD' => 'GET'];
-
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            'Body parameter for "ServerRequestFactory::createFromParameters()" must be instance of StreamInterface, resource or null.',
-        );
-
-        $this
-            ->createServerRequestFactory()
-            ->createFromParameters($server, [], [], [], [], [], $body);
     }
 
     public function hostParsingDataProvider(): array
@@ -400,27 +357,17 @@ final class RequestFactory
      */
     public function testHostParsingFromParameters(array $serverParams, array $expectParams): void
     {
-        $serverRequest = $this
-            ->createServerRequestFactory()
-            ->createFromParameters($serverParams);
+        $_SERVER = $serverParams;
 
-        $this->assertSame($expectParams['host'], $serverRequest
-            ->getUri()
-            ->getHost());
-        $this->assertSame($expectParams['port'], $serverRequest
-            ->getUri()
-            ->getPort());
-        $this->assertSame($expectParams['method'], $serverRequest->getMethod());
-        $this->assertSame($expectParams['protocol'], $serverRequest->getProtocolVersion());
-        $this->assertSame($expectParams['scheme'], $serverRequest
-            ->getUri()
-            ->getScheme());
-        $this->assertSame($expectParams['path'], $serverRequest
-            ->getUri()
-            ->getPath());
-        $this->assertSame($expectParams['query'], $serverRequest
-            ->getUri()
-            ->getQuery());
+        $request = $this->createRequestFactory()->create();
+
+        $this->assertSame($expectParams['host'], $request->getUri()->getHost());
+        $this->assertSame($expectParams['port'], $request->getUri()->getPort());
+        $this->assertSame($expectParams['method'], $request->getMethod());
+        $this->assertSame($expectParams['protocol'], $request->getProtocolVersion());
+        $this->assertSame($expectParams['scheme'], $request->getUri()->getScheme());
+        $this->assertSame($expectParams['path'], $request->getUri()->getPath());
+        $this->assertSame($expectParams['query'], $request->getUri()->getQuery());
     }
 
     /**
@@ -430,31 +377,21 @@ final class RequestFactory
     public function testHostParsingFromGlobals(array $serverParams, array $expectParams): void
     {
         $_SERVER = $serverParams;
-        $serverRequest = $this
-            ->createServerRequestFactory()
-            ->createFromGlobals();
 
-        $this->assertSame($expectParams['host'], $serverRequest
-            ->getUri()
-            ->getHost());
-        $this->assertSame($expectParams['port'], $serverRequest
-            ->getUri()
-            ->getPort());
-        $this->assertSame($expectParams['method'], $serverRequest->getMethod());
-        $this->assertSame($expectParams['protocol'], $serverRequest->getProtocolVersion());
-        $this->assertSame($expectParams['scheme'], $serverRequest
-            ->getUri()
-            ->getScheme());
-        $this->assertSame($expectParams['path'], $serverRequest
-            ->getUri()
-            ->getPath());
-        $this->assertSame($expectParams['query'], $serverRequest
-            ->getUri()
-            ->getQuery());
+        $request = $this->createRequestFactory()->create();
+
+        $this->assertSame($expectParams['host'], $request->getUri()->getHost());
+        $this->assertSame($expectParams['port'], $request->getUri()->getPort());
+        $this->assertSame($expectParams['method'], $request->getMethod());
+        $this->assertSame($expectParams['protocol'], $request->getProtocolVersion());
+        $this->assertSame($expectParams['scheme'], $request->getUri()->getScheme());
+        $this->assertSame($expectParams['path'], $request->getUri()->getPath());
+        $this->assertSame($expectParams['query'], $request->getUri()->getQuery());
     }
 
     public function dataJsonParsing(): array
     {
+
         return [
             [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/json'],
             [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/test+json'],
@@ -466,13 +403,14 @@ final class RequestFactory
      */
     public function testJsonParsing(array $expectedParsedBody, string $body, string $contentType): void
     {
-        $request = $this
-            ->createServerRequestFactory()
-            ->createFromParameters(
-                server: ['REQUEST_METHOD' => 'POST'],
-                headers: ['Content-Type' => $contentType],
-                body: $body,
-            );
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => $contentType,
+        ];
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create($this->createResource($body));
+        $request = $requestFactory->parseBody($request);
 
         $this->assertSame($expectedParsedBody, $request->getParsedBody());
     }
@@ -500,15 +438,17 @@ final class RequestFactory
      */
     public function testInvalidJsonParsing(string $expectedMessage, string $body): void
     {
-        $request = $this->createServerRequestFactory();
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create($this->createResource($body));
 
         $this->expectException(BadRequestException::class);
         $this->expectExceptionMessage($expectedMessage);
-        $request->createFromParameters(
-            server: ['REQUEST_METHOD' => 'POST'],
-            headers: ['Content-Type' => 'application/json'],
-            body: $body,
-        );
+        $requestFactory->parseBody($request);
     }
 
     public function dataPostInParsedBody(): array
@@ -530,24 +470,64 @@ final class RequestFactory
      */
     public function testPostInParsedBody(array $post, string $contentType): void
     {
-        $request = $this
-            ->createServerRequestFactory()
-            ->createFromParameters(
-                server: ['REQUEST_METHOD' => 'POST'],
-                headers: ['Content-Type' => $contentType],
-                post: $post,
-            );
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => $contentType,
+        ];
+        $_POST = $post;
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create();
+        $request = $requestFactory->parseBody($request);
 
         $this->assertSame($post, $request->getParsedBody());
     }
 
-    private function createServerRequestFactory(): ServerRequestFactory
+    public function testNotParseUJsonWithoutBody(): void
     {
-        return new ServerRequestFactory(
-            new PsrServerRequestFactory(),
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/json',
+        ];
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create(false);
+        $request = $requestFactory->parseBody($request);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    public function testNotParseUnknownType(): void
+    {
+        $_SERVER = [
+            'REQUEST_METHOD' => 'POST',
+            'CONTENT_TYPE' => 'application/unknown',
+        ];
+
+        $requestFactory = $this->createRequestFactory();
+        $request = $requestFactory->create($this->createResource('hello'));
+        $request = $requestFactory->parseBody($request);
+
+        $this->assertNull($request->getParsedBody());
+    }
+
+    private function createRequestFactory(): RequestFactory
+    {
+        return new RequestFactory(
+            new ServerRequestFactory(),
             new UriFactory(),
             new UploadedFileFactory(),
             new StreamFactory(),
         );
+    }
+
+    /**
+     * @return resource|false
+     */
+    private function createResource(?string $value)
+    {
+        return $value == null
+            ? false
+            : fopen('data://text/plain,' . $value, 'r');
     }
 }
