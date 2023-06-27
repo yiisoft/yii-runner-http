@@ -3,7 +3,7 @@
 ## 2.1.0 under development
 
 - Enh #52: Add JSON support on parsing the request body (@vjik)
-- Bug #53: Fix exception message when invalid body parameter (@vjik) 
+- Chg #53: Mark `ServerRequestFactory` as deprecated (@vjik) 
 
 ## 2.0.0 February 19, 2023
 

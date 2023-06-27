@@ -12,13 +12,14 @@ use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use stdClass;
+use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\ServerRequestFactory;
 
 use function fopen;
 use function fwrite;
 use function rewind;
 
-final class ServerRequestFactoryTest extends TestCase
+final class RequestFactory
 {
     public function testUploadedFiles(): void
     {
@@ -141,8 +142,7 @@ final class ServerRequestFactoryTest extends TestCase
 
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
-            'Body parameter for "ServerRequestFactory::createFromParameters()"'
-            . 'must be instance of StreamInterface, resource or null.',
+            'Body parameter for "ServerRequestFactory::createFromParameters()" must be instance of StreamInterface, resource or null.',
         );
 
         $this
@@ -451,6 +451,94 @@ final class ServerRequestFactoryTest extends TestCase
         $this->assertSame($expectParams['query'], $serverRequest
             ->getUri()
             ->getQuery());
+    }
+
+    public function dataJsonParsing(): array
+    {
+        return [
+            [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/json'],
+            [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/test+json'],
+        ];
+    }
+
+    /**
+     * @dataProvider dataJsonParsing
+     */
+    public function testJsonParsing(array $expectedParsedBody, string $body, string $contentType): void
+    {
+        $request = $this
+            ->createServerRequestFactory()
+            ->createFromParameters(
+                server: ['REQUEST_METHOD' => 'POST'],
+                headers: ['Content-Type' => $contentType],
+                body: $body,
+            );
+
+        $this->assertSame($expectedParsedBody, $request->getParsedBody());
+    }
+
+    public function dataInvalidJsonParsing(): array
+    {
+        return [
+            'string' => [
+                'Parsed JSON must contain array, but "string" given.',
+                '"test"',
+            ],
+            'int' => [
+                'Parsed JSON must contain array, but "int" given.',
+                '42',
+            ],
+            'invalid-json' => [
+                'Error when parsing JSON request body.',
+                '{42',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataInvalidJsonParsing
+     */
+    public function testInvalidJsonParsing(string $expectedMessage, string $body): void
+    {
+        $request = $this->createServerRequestFactory();
+
+        $this->expectException(BadRequestException::class);
+        $this->expectExceptionMessage($expectedMessage);
+        $request->createFromParameters(
+            server: ['REQUEST_METHOD' => 'POST'],
+            headers: ['Content-Type' => 'application/json'],
+            body: $body,
+        );
+    }
+
+    public function dataPostInParsedBody(): array
+    {
+        return [
+            [
+                ['name' => 'test'],
+                'application/x-www-form-urlencoded',
+            ],
+            [
+                ['name' => 'test'],
+                'multipart/form-data',
+            ],
+        ];
+    }
+
+    /**
+     * @dataProvider dataPostInParsedBody
+     */
+    public function testPostInParsedBody(array $post, string $contentType): void
+    {
+        $request = $this
+            ->createServerRequestFactory()
+            ->createFromParameters(
+                server: ['REQUEST_METHOD' => 'POST'],
+                headers: ['Content-Type' => $contentType],
+                post: $post,
+            );
+
+        $this->assertSame($post, $request->getParsedBody());
     }
 
     private function createServerRequestFactory(): ServerRequestFactory

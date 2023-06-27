@@ -6,6 +6,9 @@ namespace Yiisoft\Yii\Runner\Http\Exception;
 
 use Exception;
 
+/**
+ * @internal
+ */
 final class BadRequestException extends Exception
 {
 }

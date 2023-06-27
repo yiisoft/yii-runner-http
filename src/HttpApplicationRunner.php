@@ -5,10 +5,14 @@ declare(strict_types=1);
 namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
+use HttpSoft\Message\ResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use RuntimeException;
 use Throwable;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -18,11 +22,13 @@ use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
 use Yiisoft\Http\Method;
+use Yiisoft\Http\Status;
 use Yiisoft\Log\Logger;
 use Yiisoft\Log\Target\File\FileTarget;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
+use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function microtime;
@@ -129,13 +135,20 @@ final class HttpApplicationRunner extends ApplicationRunner
         $application = $container->get(Application::class);
 
         /**
-         * @var ServerRequestInterface
-         * @psalm-suppress MixedMethodCall
+         * @var RequestFactory $requestFactory
          */
-        $serverRequest = $container
-            ->get(ServerRequestFactory::class)
-            ->createFromGlobals();
-        $request = $serverRequest->withAttribute('applicationStartTime', $startTime);
+        $requestFactory = $container->get(RequestFactory::class);
+        $request = $requestFactory->create();
+        try {
+            $request = $requestFactory->parseBody($request);
+        } catch (BadRequestException $e) {
+            $this->emit(
+                $request,
+                (new ResponseFactory())->createResponse(Status::BAD_REQUEST, $e->getMessage()),
+            );
+        }
+
+        $request = $request->withAttribute('applicationStartTime', $startTime);
 
         try {
             $application->start();
