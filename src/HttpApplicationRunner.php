@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
-use HttpSoft\Message\ResponseFactory;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -141,7 +140,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         } catch (BadRequestException $e) {
             $this->emit(
                 $request,
-                (new ResponseFactory())->createResponse(Status::BAD_REQUEST, $e->getMessage()),
+                new BadRequestResponse($e->getMessage()),
             );
             return;
         }
