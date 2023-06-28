@@ -29,7 +29,7 @@ use function substr;
 use function ucwords;
 
 /**
- * `ServerRequestCreator` creates an instance of a server request.
+ * `RequestCreator` creates an instance of a server request.
  *
  * @internal
  */
@@ -69,6 +69,7 @@ final class RequestFactory
 
         // Add protocol
         $protocol = '1.1';
+        /** @psalm-suppress RedundantCondition It's bug in Psalm < 5 */
         if (array_key_exists('SERVER_PROTOCOL', $_SERVER) && $_SERVER['SERVER_PROTOCOL'] !== '') {
             $protocol = str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']);
         }
@@ -89,6 +90,7 @@ final class RequestFactory
 
         // Add uploaded files
         $files = [];
+        /** @psalm-suppress PossiblyInvalidArrayAccess,PossiblyInvalidArrayOffset It's bug in Psalm < 5 */
         foreach ($_FILES as $class => $info) {
             $files[$class] = [];
             $this->populateUploadedFileRecursive(

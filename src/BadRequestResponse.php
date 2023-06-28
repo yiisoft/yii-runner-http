@@ -59,6 +59,9 @@ final class BadRequestResponse implements ResponseInterface
         throw new RuntimeException('Method "withAddedHeader" is not supported.');
     }
 
+    /**
+     * @psalm-suppress MoreSpecificReturnType, LessSpecificReturnStatement It's bug in Psalm < 5
+     */
     public function withoutHeader(string $name): self
     {
         return $this;
