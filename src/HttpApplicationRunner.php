@@ -137,10 +137,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         try {
             $request = $requestFactory->parseBody($request);
         } catch (BadRequestException $e) {
-            $this->emit(
-                $request,
-                new BadRequestResponse($e->getMessage()),
-            );
+            $this->emit($request, new BadRequestResponse($e->getMessage()));
             return;
         }
 

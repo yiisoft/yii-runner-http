@@ -29,7 +29,7 @@ use function substr;
 use function ucwords;
 
 /**
- * `RequestCreator` creates an instance of a server request.
+ * `RequestFactory` creates an instance of a server request.
  *
  * @internal
  */
