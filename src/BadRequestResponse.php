@@ -69,7 +69,7 @@ final class BadRequestResponse implements ResponseInterface
 
     public function getBody(): StreamInterface
     {
-        return new class() implements StreamInterface {
+        return new class () implements StreamInterface {
             public function __toString(): string
             {
                 throw new RuntimeException('Method "__toString" is not supported.');
