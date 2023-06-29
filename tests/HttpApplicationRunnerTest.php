@@ -47,10 +47,7 @@ use Yiisoft\Yii\Http\Event\ApplicationShutdown;
 use Yiisoft\Yii\Http\Event\ApplicationStartup;
 use Yiisoft\Yii\Http\Event\BeforeRequest;
 use Yiisoft\Yii\Http\Handler\NotFoundHandler;
-use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
-use Yiisoft\Yii\Runner\Http\RequestFactory;
-use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 
 include 'Support/Emitter/httpFunctionMocks.php';
 

@@ -10,7 +10,6 @@ use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
-use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 use Yiisoft\Yii\Runner\Http\RequestFactory;
 
 use function fopen;

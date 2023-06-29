@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http;
 
-use JsonException;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
@@ -19,7 +17,6 @@ use function explode;
 use function fopen;
 use function function_exists;
 use function getallheaders;
-use function in_array;
 use function is_array;
 use function preg_match;
 use function str_replace;
@@ -110,7 +107,7 @@ final class RequestFactory
     {
         if ($request->getMethod() === 'POST') {
             $contentType = $request->getHeaderLine('content-type');
-            if (                preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
+            if (preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
                 || preg_match('~^multipart/form-data($| |;)~', $contentType)
             ) {
                 return $request->withParsedBody($_POST);
