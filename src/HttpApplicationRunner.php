@@ -7,6 +7,7 @@ namespace Yiisoft\Yii\Runner\Http;
 use ErrorException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Throwable;
@@ -18,6 +19,7 @@ use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
 use Yiisoft\Http\Method;
+use Yiisoft\Http\Status;
 use Yiisoft\Log\Logger;
 use Yiisoft\Log\Target\File\FileTarget;
 use Yiisoft\Yii\Http\Application;
@@ -137,7 +139,9 @@ final class HttpApplicationRunner extends ApplicationRunner
         try {
             $request = $requestFactory->parseBody($request);
         } catch (BadRequestException $e) {
-            $this->emit($request, new BadRequestResponse($e->getMessage()));
+            /** @var ResponseFactoryInterface $response */
+            $response = $container->get(ResponseFactoryInterface::class);
+            $this->emit($request, $response->createResponse(Status::BAD_REQUEST, $e->getMessage()));
             return;
         }
 
