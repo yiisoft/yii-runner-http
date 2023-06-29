@@ -13,7 +13,6 @@ use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
-use Yiisoft\Yii\Runner\Http\Exception\BadRequestException;
 
 use function array_key_exists;
 use function explode;
@@ -107,20 +106,18 @@ final class RequestFactory
         return $request;
     }
 
-    /**
-     * @throws BadRequestException
-     */
     public function parseBody(ServerRequestInterface $request): ServerRequestInterface
     {
-        $parsedBody = $this->doParseBody(
-            $request->getMethod(),
-            $request->getHeaderLine('content-type'),
-            $request->getBody(),
-        );
+        if ($request->getMethod() === 'POST') {
+            $contentType = $request->getHeaderLine('content-type');
+            if (                preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
+                || preg_match('~^multipart/form-data($| |;)~', $contentType)
+            ) {
+                return $request->withParsedBody($_POST);
+            }
+        }
 
-        return $parsedBody === null
-            ? $request
-            : $request->withParsedBody($parsedBody);
+        return $request;
     }
 
     private function createUri(): UriInterface
@@ -250,54 +247,5 @@ final class RequestFactory
             $names,
             $types
         );
-    }
-
-    /**
-     * @throws BadRequestException
-     */
-    private function doParseBody(string $method, string $contentType, StreamInterface $body): ?array
-    {
-        if (in_array($method, ['GET', 'HEAD', 'OPTIONS'], true)) {
-            return null;
-        }
-
-        if (
-            $method === 'POST'
-            && (
-                preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
-                || preg_match('~^multipart/form-data($| |;)~', $contentType)
-            )
-        ) {
-            return $_POST;
-        }
-
-        if (preg_match('~^application/(|[\S]+\+)json($| |;)~', $contentType)) {
-            $body = (string) $body;
-            if ($body === '') {
-                return null;
-            }
-
-            try {
-                $parsedBody = json_decode($body, true, flags: JSON_THROW_ON_ERROR);
-            } catch (JsonException $e) {
-                throw new BadRequestException(
-                    'Error when parsing JSON request body.',
-                    previous: $e
-                );
-            }
-
-            if (!is_array($parsedBody)) {
-                throw new BadRequestException(
-                    sprintf(
-                        'Parsed JSON must contain array, but "%s" given.',
-                        get_debug_type($parsedBody)
-                    )
-                );
-            }
-
-            return $parsedBody;
-        }
-
-        return null;
     }
 }

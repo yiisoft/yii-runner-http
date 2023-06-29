@@ -123,32 +123,6 @@ final class HttpApplicationRunnerTest extends TestCase
         $runner->run();
     }
 
-    public function testExceptionOnBodyParsing(): void
-    {
-        $runner = $this->runner->withContainer(
-            $this->createContainer(extraDefinitions: [
-                RequestFactory::class => new class () {
-                    public function create(): ServerRequestInterface
-                    {
-                        return (new ServerRequestFactory())->createServerRequest('POST', 'https://example.com/');
-                    }
-
-                    public function parseBody(ServerRequestInterface $request): ServerRequestInterface
-                    {
-                        throw new BadRequestException('Bad request.');
-                    }
-                },
-            ]),
-        );
-
-        HTTPFunctions::reset();
-
-        $runner->run();
-
-        $this->assertSame(400, HTTPFunctions::http_response_code());
-        $this->assertSame('HTTP/1.1 400 Bad request.', HTTPFunctions::rawHttpHeader());
-    }
-
     public function testImmutability(): void
     {
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));

@@ -388,67 +388,6 @@ final class RequestFactoryTest extends TestCase
         $this->assertSame($expectParams['query'], $request->getUri()->getQuery());
     }
 
-    public function dataJsonParsing(): array
-    {
-        return [
-            [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/json'],
-            [['name' => 'mike', 'age' => 21], '{"name":"mike","age":21}', 'application/test+json'],
-        ];
-    }
-
-    /**
-     * @dataProvider dataJsonParsing
-     */
-    public function testJsonParsing(array $expectedParsedBody, string $body, string $contentType): void
-    {
-        $_SERVER = [
-            'REQUEST_METHOD' => 'POST',
-            'CONTENT_TYPE' => $contentType,
-        ];
-
-        $requestFactory = $this->createRequestFactory();
-        $request = $requestFactory->create($this->createResource($body));
-        $request = $requestFactory->parseBody($request);
-
-        $this->assertSame($expectedParsedBody, $request->getParsedBody());
-    }
-
-    public function dataInvalidJsonParsing(): array
-    {
-        return [
-            'string' => [
-                'Parsed JSON must contain array, but "string" given.',
-                '"test"',
-            ],
-            'int' => [
-                'Parsed JSON must contain array, but "int" given.',
-                '42',
-            ],
-            'invalid-json' => [
-                'Error when parsing JSON request body.',
-                '{42',
-            ],
-        ];
-    }
-
-    /**
-     * @dataProvider dataInvalidJsonParsing
-     */
-    public function testInvalidJsonParsing(string $expectedMessage, string $body): void
-    {
-        $_SERVER = [
-            'REQUEST_METHOD' => 'POST',
-            'CONTENT_TYPE' => 'application/json',
-        ];
-
-        $requestFactory = $this->createRequestFactory();
-        $request = $requestFactory->create($this->createResource($body));
-
-        $this->expectException(BadRequestException::class);
-        $this->expectExceptionMessage($expectedMessage);
-        $requestFactory->parseBody($request);
-    }
-
     public function dataPostInParsedBody(): array
     {
         return [

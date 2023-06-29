@@ -136,14 +136,7 @@ final class HttpApplicationRunner extends ApplicationRunner
          */
         $requestFactory = $container->get(RequestFactory::class);
         $request = $requestFactory->create();
-        try {
-            $request = $requestFactory->parseBody($request);
-        } catch (BadRequestException $e) {
-            /** @var ResponseFactoryInterface $response */
-            $response = $container->get(ResponseFactoryInterface::class);
-            $this->emit($request, $response->createResponse(Status::BAD_REQUEST, $e->getMessage()));
-            return;
-        }
+        $request = $requestFactory->parseBody($request);
 
         $request = $request->withAttribute('applicationStartTime', $startTime);
 
