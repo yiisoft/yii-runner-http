@@ -79,6 +79,16 @@ final class RequestFactory
             );
         }
 
+        // Parse body
+        if ($method === 'POST') {
+            $contentType = $request->getHeaderLine('content-type');
+            if (preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
+                || preg_match('~^multipart/form-data($| |;)~', $contentType)
+            ) {
+                $request = $request->withParsedBody($_POST);
+            }
+        }
+
         // Add query and cookie params
         $request = $request
             ->withQueryParams($_GET)
@@ -99,20 +109,6 @@ final class RequestFactory
             );
         }
         $request = $request->withUploadedFiles($files);
-
-        return $request;
-    }
-
-    public function parseBody(ServerRequestInterface $request): ServerRequestInterface
-    {
-        if ($request->getMethod() === 'POST') {
-            $contentType = $request->getHeaderLine('content-type');
-            if (preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
-                || preg_match('~^multipart/form-data($| |;)~', $contentType)
-            ) {
-                return $request->withParsedBody($_POST);
-            }
-        }
 
         return $request;
     }

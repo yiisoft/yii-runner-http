@@ -414,7 +414,6 @@ final class RequestFactoryTest extends TestCase
 
         $requestFactory = $this->createRequestFactory();
         $request = $requestFactory->create();
-        $request = $requestFactory->parseBody($request);
 
         $this->assertSame($post, $request->getParsedBody());
     }
@@ -428,7 +427,6 @@ final class RequestFactoryTest extends TestCase
 
         $requestFactory = $this->createRequestFactory();
         $request = $requestFactory->create(false);
-        $request = $requestFactory->parseBody($request);
 
         $this->assertNull($request->getParsedBody());
     }
@@ -442,7 +440,6 @@ final class RequestFactoryTest extends TestCase
 
         $requestFactory = $this->createRequestFactory();
         $request = $requestFactory->create($this->createResource('hello'));
-        $request = $requestFactory->parseBody($request);
 
         $this->assertNull($request->getParsedBody());
     }

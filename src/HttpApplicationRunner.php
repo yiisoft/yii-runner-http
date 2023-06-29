@@ -133,10 +133,8 @@ final class HttpApplicationRunner extends ApplicationRunner
          */
         $requestFactory = $container->get(RequestFactory::class);
         $request = $requestFactory->create();
-        $request = $requestFactory->parseBody($request);
 
         $request = $request->withAttribute('applicationStartTime', $startTime);
-
         try {
             $application->start();
             $response = $application->handle($request);
