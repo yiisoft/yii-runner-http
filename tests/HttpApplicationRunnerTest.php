@@ -49,8 +49,6 @@ use Yiisoft\Yii\Http\Event\BeforeRequest;
 use Yiisoft\Yii\Http\Handler\NotFoundHandler;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
-include 'Support/Emitter/httpFunctionMocks.php';
-
 final class HttpApplicationRunnerTest extends TestCase
 {
     private HttpApplicationRunner $runner;
