@@ -257,8 +257,6 @@ final class SapiEmitterTest extends TestCase
             ->createEmitter()
             ->emit($response);
 
-        (new SapiEmitter())->emit($response);
-
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
     }
@@ -273,6 +271,8 @@ final class SapiEmitterTest extends TestCase
             ob_start();
             return '-';
         });
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
         $response = $this->createResponse(Status::OK, ['X-Test' => 1])
             ->withBody($stream)
         ;
@@ -280,8 +280,6 @@ final class SapiEmitterTest extends TestCase
         $this
             ->createEmitter()
             ->emit($response);
-
-        (new SapiEmitter())->emit($response);
 
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
