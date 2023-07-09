@@ -6,8 +6,8 @@ namespace Yiisoft\Yii\Runner\Http\Tests;
 
 include 'Support/Emitter/httpFunctionMocks.php';
 
-use InvalidArgumentException;
 use HttpSoft\Message\Response;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -246,6 +246,24 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('Cookie-Set: 3', $this->getHeaders());
         $this->assertContains('Content-Length: ' . strlen($body), $this->getHeaders());
         $this->expectOutputString($body);
+    }
+
+    public function testObLevel(): void
+    {
+        ob_start();
+        $expectedLevel = ob_get_level();
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1]);
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        (new SapiEmitter())->emit($response);
+
+        $actualLevel = ob_get_level();
+        $this->assertSame($expectedLevel, $actualLevel);
+        // clean output buffers before the end because phpunit has its own output buffers
+        ob_get_clean();
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
