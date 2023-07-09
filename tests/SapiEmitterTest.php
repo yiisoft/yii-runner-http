@@ -250,7 +250,6 @@ final class SapiEmitterTest extends TestCase
 
     public function testObLevel(): void
     {
-        ob_start();
         $expectedLevel = ob_get_level();
         $response = $this->createResponse(Status::OK, ['X-Test' => 1]);
 
@@ -262,8 +261,30 @@ final class SapiEmitterTest extends TestCase
 
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
-        // clean output buffers before the end because phpunit has its own output buffers
-        ob_get_clean();
+    }
+
+    public function testExtraObLevel(): void
+    {
+        $expectedLevel = ob_get_level();
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('read')->willReturnCallback(static function () {
+            ob_start();
+            ob_start();
+            ob_start();
+            return '-';
+        });
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream)
+        ;
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        (new SapiEmitter())->emit($response);
+
+        $actualLevel = ob_get_level();
+        $this->assertSame($expectedLevel, $actualLevel);
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
