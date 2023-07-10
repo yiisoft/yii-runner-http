@@ -6,8 +6,8 @@ namespace Yiisoft\Yii\Runner\Http\Tests;
 
 include 'Support/Emitter/httpFunctionMocks.php';
 
-use InvalidArgumentException;
 use HttpSoft\Message\Response;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -246,6 +246,43 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('Cookie-Set: 3', $this->getHeaders());
         $this->assertContains('Content-Length: ' . strlen($body), $this->getHeaders());
         $this->expectOutputString($body);
+    }
+
+    public function testObLevel(): void
+    {
+        $expectedLevel = ob_get_level();
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1]);
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $actualLevel = ob_get_level();
+        $this->assertSame($expectedLevel, $actualLevel);
+    }
+
+    public function testExtraObLevel(): void
+    {
+        $expectedLevel = ob_get_level();
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('read')->willReturnCallback(static function () {
+            ob_start();
+            ob_start();
+            ob_start();
+            return '-';
+        });
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream)
+        ;
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $actualLevel = ob_get_level();
+        $this->assertSame($expectedLevel, $actualLevel);
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
