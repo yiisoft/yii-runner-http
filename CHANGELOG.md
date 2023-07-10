@@ -1,5 +1,9 @@
 # Yii Runner HTTP Change Log
 
+## 2.1.1 under development
+
+- no changes in this release.
+
 ## 2.1.0 July 10, 2023
 
 - Chg #53: Add `RequestFactory` as a refactoring of `ServerRequestFactory`, mark `ServerRequestFactory` as deprecated (@vjik)
