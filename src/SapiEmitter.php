@@ -109,8 +109,17 @@ final class SapiEmitter
             $body->rewind();
         }
 
+        $level = ob_get_level();
         while (!$body->eof()) {
-            echo $body->read($this->bufferSize);
+            $output = $body->read($this->bufferSize);
+            if ($output === '') {
+                continue;
+            }
+            echo $output;
+            // flush the output buffer and send echoed messages to the browser
+            while (ob_get_level() > $level) {
+                ob_end_flush();
+            }
             flush();
         }
     }
