@@ -1,7 +1,13 @@
 # Yii Runner HTTP Change Log
 
 ## 2.1.0 under development
+## 2.1.1 under development
 
+- Enh #50: Support stream output (@xepozz)
+
+## 2.1.0 July 10, 2023
+
+- Chg #53: Add `RequestFactory` as a refactoring of `ServerRequestFactory`, mark `ServerRequestFactory` as deprecated (@vjik)
 - Enh #50: Support stream output (@xepozz)
 
 ## 2.0.0 February 19, 2023

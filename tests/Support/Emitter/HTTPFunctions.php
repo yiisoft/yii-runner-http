@@ -22,6 +22,7 @@ final class HTTPFunctions
     private static bool $headersSent = false;
     private static string $headersSentFile = '';
     private static int $headersSentLine = 0;
+    private static string $rawHttpHeader = '';
 
     /**
      * Reset state
@@ -33,6 +34,7 @@ final class HTTPFunctions
         self::$headersSent = false;
         self::$headersSentFile = '';
         self::$headersSentLine = 0;
+        self::$rawHttpHeader = '';
     }
 
     /**
@@ -66,6 +68,8 @@ final class HTTPFunctions
                 self::$headers[$header] = [];
             }
             self::$headers[$header][] = $string;
+        } else {
+            self::$rawHttpHeader = $string;
         }
         if ($http_response_code !== null) {
             self::$responseCode = $http_response_code;
@@ -117,5 +121,10 @@ final class HTTPFunctions
     public static function hasHeader(string $header): bool
     {
         return array_key_exists(strtolower($header), self::$headers);
+    }
+
+    public static function rawHttpHeader(): string
+    {
+        return self::$rawHttpHeader;
     }
 }

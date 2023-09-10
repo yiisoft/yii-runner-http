@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http;
 
-use InvalidArgumentException;
 use Psr\Http\Message\ServerRequestFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
-use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileFactoryInterface;
 use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
@@ -20,8 +18,6 @@ use function fopen;
 use function function_exists;
 use function getallheaders;
 use function is_array;
-use function is_resource;
-use function is_string;
 use function preg_match;
 use function str_replace;
 use function strtolower;
@@ -29,145 +25,124 @@ use function substr;
 use function ucwords;
 
 /**
- * `ServerRequestFactory` creates an instance of a server request.
+ * `RequestFactory` creates an instance of a server request.
  *
- * @deprecated Will remove in the next major version.
+ * @internal
  */
-final class ServerRequestFactory
+final class RequestFactory
 {
     public function __construct(
         private ServerRequestFactoryInterface $serverRequestFactory,
         private UriFactoryInterface $uriFactory,
         private UploadedFileFactoryInterface $uploadedFileFactory,
-        private StreamFactoryInterface $streamFactory
+        private StreamFactoryInterface $streamFactory,
     ) {
-    }
-
-    /**
-     * Creates an instance of a server request from PHP superglobals.
-     *
-     * @return ServerRequestInterface The server request instance.
-     */
-    public function createFromGlobals(): ServerRequestInterface
-    {
-        /** @psalm-var array<string, string> $_SERVER */
-        return $this->createFromParameters(
-            $_SERVER,
-            $this->getHeadersFromGlobals(),
-            $_COOKIE,
-            $_GET,
-            $_POST,
-            $_FILES,
-            fopen('php://input', 'rb') ?: null
-        );
     }
 
     /**
      * Creates an instance of a server request from custom parameters.
      *
-     * @param resource|StreamInterface|string|null $body
-     *
-     * @psalm-param array<string, string> $server
-     * @psalm-param array<string, string|string[]> $headers
-     * @psalm-param mixed $body
+     * @param false|resource|null $body
      *
      * @return ServerRequestInterface The server request instance.
      */
-    public function createFromParameters(
-        array $server,
-        array $headers = [],
-        array $cookies = [],
-        array $get = [],
-        array $post = [],
-        array $files = [],
-        mixed $body = null
-    ): ServerRequestInterface {
-        $method = $server['REQUEST_METHOD'] ?? null;
-
+    public function create($body = null): ServerRequestInterface
+    {
+        // Create base request
+        $method = $_SERVER['REQUEST_METHOD'] ?? null;
         if ($method === null) {
             throw new RuntimeException('Unable to determine HTTP request method.');
         }
+        $request = $this->serverRequestFactory->createServerRequest($method, $this->createUri(), $_SERVER);
 
-        $uri = $this->getUri($server);
-        $request = $this->serverRequestFactory->createServerRequest($method, $uri, $server);
-
-        foreach ($headers as $name => $value) {
+        // Add headers
+        foreach ($this->getHeaders() as $name => $value) {
             if ($name === 'Host' && $request->hasHeader('Host')) {
                 continue;
             }
-
             $request = $request->withAddedHeader($name, $value);
         }
 
+        // Add protocol
         $protocol = '1.1';
-        if (array_key_exists('SERVER_PROTOCOL', $server) && $server['SERVER_PROTOCOL'] !== '') {
-            $protocol = str_replace('HTTP/', '', $server['SERVER_PROTOCOL']);
+        /** @psalm-suppress RedundantCondition It's bug in Psalm < 5 */
+        if (array_key_exists('SERVER_PROTOCOL', $_SERVER) && $_SERVER['SERVER_PROTOCOL'] !== '') {
+            $protocol = str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']);
+        }
+        $request = $request->withProtocolVersion($protocol);
+
+        // Add body
+        $body ??= fopen('php://input', 'rb');
+        if ($body !== false) {
+            $request = $request->withBody(
+                $this->streamFactory->createStreamFromResource($body)
+            );
         }
 
+        // Parse body
+        if ($method === 'POST') {
+            $contentType = $request->getHeaderLine('content-type');
+            if (preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
+                || preg_match('~^multipart/form-data($| |;)~', $contentType)
+            ) {
+                $request = $request->withParsedBody($_POST);
+            }
+        }
+
+        // Add query and cookie params
         $request = $request
-            ->withProtocolVersion($protocol)
-            ->withQueryParams($get)
-            ->withParsedBody($post)
-            ->withCookieParams($cookies)
-            ->withUploadedFiles($this->getUploadedFilesArray($files))
-        ;
+            ->withQueryParams($_GET)
+            ->withCookieParams($_COOKIE);
 
-        if ($body === null) {
-            return $request;
+        // Add uploaded files
+        $files = [];
+        /** @psalm-suppress PossiblyInvalidArrayAccess,PossiblyInvalidArrayOffset It's bug in Psalm < 5 */
+        foreach ($_FILES as $class => $info) {
+            $files[$class] = [];
+            $this->populateUploadedFileRecursive(
+                $files[$class],
+                $info['name'],
+                $info['tmp_name'],
+                $info['type'],
+                $info['size'],
+                $info['error'],
+            );
         }
+        $request = $request->withUploadedFiles($files);
 
-        if ($body instanceof StreamInterface) {
-            return $request->withBody($body);
-        }
-
-        if (is_string($body)) {
-            return $request->withBody($this->streamFactory->createStream($body));
-        }
-
-        if (is_resource($body)) {
-            return $request->withBody($this->streamFactory->createStreamFromResource($body));
-        }
-
-        throw new InvalidArgumentException(
-            'Body parameter for "ServerRequestFactory::createFromParameters()"'
-            . 'must be instance of StreamInterface, resource or null.',
-        );
+        return $request;
     }
 
-    /**
-     * @psalm-param array<string, string> $server
-     */
-    private function getUri(array $server): UriInterface
+    private function createUri(): UriInterface
     {
         $uri = $this->uriFactory->createUri();
 
-        if (array_key_exists('HTTPS', $server) && $server['HTTPS'] !== '' && $server['HTTPS'] !== 'off') {
+        if (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] !== '' && $_SERVER['HTTPS'] !== 'off') {
             $uri = $uri->withScheme('https');
         } else {
             $uri = $uri->withScheme('http');
         }
 
-        $uri = isset($server['SERVER_PORT'])
-            ? $uri->withPort((int)$server['SERVER_PORT'])
+        $uri = isset($_SERVER['SERVER_PORT'])
+            ? $uri->withPort((int) $_SERVER['SERVER_PORT'])
             : $uri->withPort($uri->getScheme() === 'https' ? 443 : 80);
 
-        if (isset($server['HTTP_HOST'])) {
-            $uri = preg_match('/^(.+):(\d+)$/', $server['HTTP_HOST'], $matches) === 1
+        if (isset($_SERVER['HTTP_HOST'])) {
+            $uri = preg_match('/^(.+):(\d+)$/', $_SERVER['HTTP_HOST'], $matches) === 1
                 ? $uri
                     ->withHost($matches[1])
                     ->withPort((int) $matches[2])
-                : $uri->withHost($server['HTTP_HOST'])
-            ;
-        } elseif (isset($server['SERVER_NAME'])) {
-            $uri = $uri->withHost($server['SERVER_NAME']);
+                : $uri->withHost($_SERVER['HTTP_HOST']);
+        } elseif (isset($_SERVER['SERVER_NAME'])) {
+            $uri = $uri->withHost($_SERVER['SERVER_NAME']);
         }
 
-        if (isset($server['REQUEST_URI'])) {
-            $uri = $uri->withPath(explode('?', $server['REQUEST_URI'])[0]);
+        if (isset($_SERVER['REQUEST_URI'])) {
+            $uri = $uri->withPath(explode('?', $_SERVER['REQUEST_URI'])[0]);
         }
 
-        if (isset($server['QUERY_STRING'])) {
-            $uri = $uri->withQuery($server['QUERY_STRING']);
+        if (isset($_SERVER['QUERY_STRING'])) {
+            $uri = $uri->withQuery($_SERVER['QUERY_STRING']);
         }
 
         return $uri;
@@ -176,8 +151,10 @@ final class ServerRequestFactory
     /**
      * @psalm-return array<string, string>
      */
-    private function getHeadersFromGlobals(): array
+    private function getHeaders(): array
     {
+        /** @psalm-var array<string, string> $_SERVER */
+
         if (function_exists('getallheaders') && ($headers = getallheaders()) !== false) {
             /** @psalm-var array<string, string> $headers */
             return $headers;
@@ -185,10 +162,6 @@ final class ServerRequestFactory
 
         $headers = [];
 
-        /**
-         * @var string $name
-         * @var string $value
-         */
         foreach ($_SERVER as $name => $value) {
             if (str_starts_with($name, 'REDIRECT_')) {
                 $name = substr($name, 9);
@@ -214,26 +187,6 @@ final class ServerRequestFactory
     private function normalizeHeaderName(string $name): string
     {
         return str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', $name))));
-    }
-
-    private function getUploadedFilesArray(array $filesArray): array
-    {
-        $files = [];
-
-        /** @var array $info */
-        foreach ($filesArray as $class => $info) {
-            $files[$class] = [];
-            $this->populateUploadedFileRecursive(
-                $files[$class],
-                $info['name'],
-                $info['tmp_name'],
-                $info['type'],
-                $info['size'],
-                $info['error'],
-            );
-        }
-
-        return $files;
     }
 
     /**
