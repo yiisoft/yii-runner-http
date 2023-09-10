@@ -97,6 +97,7 @@ final class SapiEmitter
                 header("Content-Length: $contentLength", true);
             }
         }
+        flush();
 
         $this->emitBody($response);
     }
@@ -117,7 +118,7 @@ final class SapiEmitter
             }
             echo $output;
             // flush the output buffer and send echoed messages to the browser
-            while (ob_get_level() > $level) {
+            while (ob_get_level() >= $level) {
                 ob_end_flush();
             }
             flush();
