@@ -2,7 +2,7 @@
 
 ## 2.1.0 under development
 
-- Enh #50: Support stream output (@xepozz)
+- Enh #50, #58: Support stream output (@xepozz)
 
 ## 2.0.0 February 19, 2023
 
