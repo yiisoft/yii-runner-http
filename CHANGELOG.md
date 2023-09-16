@@ -1,9 +1,8 @@
 # Yii Runner HTTP Change Log
 
-## 2.1.0 under development
 ## 2.1.1 under development
 
-- Enh #50, #58: Support stream output (@xepozz)
+- Enh #58: Support stream output headers (@xepozz)
 
 ## 2.1.0 July 10, 2023
 
