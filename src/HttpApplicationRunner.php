@@ -129,14 +129,12 @@ final class HttpApplicationRunner extends ApplicationRunner
         $application = $container->get(Application::class);
 
         /**
-         * @var ServerRequestInterface
-         * @psalm-suppress MixedMethodCall
+         * @var RequestFactory $requestFactory
          */
-        $serverRequest = $container
-            ->get(ServerRequestFactory::class)
-            ->createFromGlobals();
-        $request = $serverRequest->withAttribute('applicationStartTime', $startTime);
+        $requestFactory = $container->get(RequestFactory::class);
+        $request = $requestFactory->create();
 
+        $request = $request->withAttribute('applicationStartTime', $startTime);
         try {
             $application->start();
             $response = $application->handle($request);

@@ -88,8 +88,7 @@ final class HttpApplicationRunnerTest extends TestCase
         $runner = $this->runner
             ->withContainer($container)
             ->withConfig($this->createConfig())
-            ->withTemporaryErrorHandler($this->createErrorHandler())
-        ;
+            ->withTemporaryErrorHandler($this->createErrorHandler());
 
         $runner->run();
 
@@ -162,7 +161,7 @@ final class HttpApplicationRunnerTest extends TestCase
                             return $container
                                 ->get(MiddlewareDispatcher::class)
                                 ->withMiddlewares([
-                                    static fn () => new class ($throwException) implements MiddlewareInterface {
+                                    static fn() => new class ($throwException) implements MiddlewareInterface {
                                         public function __construct(private bool $throwException)
                                         {
                                         }
