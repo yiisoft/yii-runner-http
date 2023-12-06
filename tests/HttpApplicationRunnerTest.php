@@ -36,8 +36,6 @@ use Yiisoft\ErrorHandler\ThrowableRendererInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
-use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
@@ -51,45 +49,38 @@ use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
 
 final class HttpApplicationRunnerTest extends TestCase
 {
-    private HttpApplicationRunner $runner;
-
-    public function setUp(): void
+    public function testRun1(): void
     {
-        parent::setUp();
-
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->runner = new HttpApplicationRunner(__DIR__ . '/Support', true);
-    }
+        $runner = new HttpApplicationRunner(__DIR__ . '/Support/apps/default');
 
-    public function testRun(): void
-    {
         $this->expectOutputString('OK');
-
-        $this->runner->run();
+        $runner->run();
     }
 
     public function testRunWithoutBootstrapAndCheckEvents(): void
     {
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $runner = new HttpApplicationRunner(
-            rootPath: __DIR__ . '/Support',
-            debug: true,
+            rootPath: __DIR__ . '/Support/apps/default',
             checkEvents: false,
         );
 
         $this->expectOutputString('OK');
-
         $runner->run();
     }
 
     public function testRunWithCustomizedConfiguration(): void
     {
         $container = $this->createContainer();
+        $config = new Config(new ConfigPaths(__DIR__ . '/Support/apps/default', 'config'), paramsGroup: 'params-web');
 
-        $runner = $this->runner
+        $runner = (new HttpApplicationRunner(__DIR__ . '/Support/apps/default'))
             ->withContainer($container)
-            ->withConfig($this->createConfig())
+            ->withConfig($config)
             ->withTemporaryErrorHandler($this->createErrorHandler());
 
+        $_SERVER['REQUEST_METHOD'] = 'GET';
         $runner->run();
 
         /** @var SimpleEventDispatcher $dispatcher */
@@ -111,18 +102,24 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testRunWithFailureDuringProcess(): void
     {
-        $runner = $this->runner->withContainer($this->createContainer(true));
+        $container = $this->createContainer(true);
+
+        $_SERVER['REQUEST_METHOD'] = 'GET';
+        $runner = (new HttpApplicationRunner(__DIR__ . '/Support/apps/default', debug: true))
+            ->withContainer($container);
 
         $this->expectOutputRegex("/^Exception with message 'Failure'/");
-
         $runner->run();
     }
 
     public function testImmutability(): void
     {
-        $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
-        $this->assertNotSame($this->runner, $this->runner->withContainer($this->createContainer()));
-        $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));
+        $config = new Config(new ConfigPaths(__DIR__ . '/Support/apps/default', 'config'));
+        $runner = new HttpApplicationRunner(__DIR__ . '/Support/apps/default');
+
+        $this->assertNotSame($runner, $runner->withConfig($config));
+        $this->assertNotSame($runner, $runner->withContainer($this->createContainer()));
+        $this->assertNotSame($runner, $runner->withTemporaryErrorHandler($this->createErrorHandler()));
     }
 
     private function createContainer(bool $throwException = false): ContainerInterface
@@ -132,17 +129,11 @@ final class HttpApplicationRunnerTest extends TestCase
         return new Container($containerConfig);
     }
 
-    private function createConfig(): Config
-    {
-        return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'), paramsGroup: 'params-web');
-    }
-
     private function createDefinitions(bool $throwException): array
     {
         return [
             EventDispatcherInterface::class => SimpleEventDispatcher::class,
             LoggerInterface::class => SimpleLogger::class,
-            WrapperFactoryInterface::class => WrapperFactory::class,
             ResponseFactoryInterface::class => ResponseFactory::class,
             ServerRequestFactoryInterface::class => ServerRequestFactory::class,
             StreamFactoryInterface::class => StreamFactory::class,
