@@ -1,6 +1,6 @@
 # Yii Runner HTTP Change Log
 
-## 2.2.0 under development
+## 2.2.0 December 25, 2023
 
 - New #49: Add ability to set custom config modifiers (@vjik)
 
