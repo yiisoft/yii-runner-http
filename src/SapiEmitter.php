@@ -99,6 +99,13 @@ final class SapiEmitter
         }
         flush();
 
+        /**
+         * Sends headers before the body.
+         * Makes a client possible to recognize the type of the body content if it is sent with a delay,
+         * for instance, for a streamed response.
+         */
+        flush();
+
         $this->emitBody($response);
     }
 
