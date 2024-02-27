@@ -23,6 +23,7 @@ final class HTTPFunctions
     private static string $headersSentFile = '';
     private static int $headersSentLine = 0;
     private static string $rawHttpHeader = '';
+    private static int $flushedTimes = 0;
 
     /**
      * Reset state
@@ -35,6 +36,7 @@ final class HTTPFunctions
         self::$headersSentFile = '';
         self::$headersSentLine = 0;
         self::$rawHttpHeader = '';
+        self::$flushedTimes = 0;
     }
 
     /**
@@ -60,7 +62,7 @@ final class HTTPFunctions
     /**
      * Send a raw HTTP header
      */
-    public static function header(string $string, bool $replace = true, ?int $http_response_code = null): void
+    public static function header(string $string, bool $replace = true, ?int $http_response_code = 0): void
     {
         if (!str_starts_with($string, 'HTTP/')) {
             $header = strtolower(explode(':', $string, 2)[0]);
@@ -71,7 +73,7 @@ final class HTTPFunctions
         } else {
             self::$rawHttpHeader = $string;
         }
-        if ($http_response_code !== null) {
+        if ($http_response_code !== 0) {
             self::$responseCode = $http_response_code;
         }
     }
@@ -107,9 +109,9 @@ final class HTTPFunctions
     /**
      * Get or Set the HTTP response code
      */
-    public static function http_response_code(?int $response_code = null): int
+    public static function http_response_code(?int $response_code = 0): int
     {
-        if ($response_code !== null) {
+        if ($response_code !== 0) {
             self::$responseCode = $response_code;
         }
         return self::$responseCode;
@@ -126,5 +128,20 @@ final class HTTPFunctions
     public static function rawHttpHeader(): string
     {
         return self::$rawHttpHeader;
+    }
+
+    public static function getHeader(string $header): array
+    {
+        return self::$headers[strtolower($header)] ?? [];
+    }
+
+    public static function flush(): void
+    {
+        self::$flushedTimes++;
+    }
+
+    public static function getFlushTimes(): int
+    {
+        return self::$flushedTimes;
     }
 }

@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http\Tests;
 
-include 'Support/Emitter/httpFunctionMocks.php';
-
 use HttpSoft\Message\Response;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -17,6 +15,8 @@ use Yiisoft\Yii\Runner\Http\SapiEmitter;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotReadableStream;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableStream;
+
+use function is_string;
 
 use function is_string;
 
