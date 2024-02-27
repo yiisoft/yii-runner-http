@@ -32,7 +32,7 @@ final class SapiEmitterTest extends TestCase
         HTTPFunctions::reset();
     }
 
-    public function bufferSizeProvider(): array
+    public static function bufferSizeProvider(): array
     {
         return [[null], [1], [100], [1000]];
     }
@@ -56,7 +56,7 @@ final class SapiEmitterTest extends TestCase
         $this->expectOutputString($body);
     }
 
-    public function noBodyResponseCodeProvider(): array
+    public static function noBodyResponseCodeProvider(): array
     {
         return [[100], [101], [102], [204], [205], [304]];
     }
