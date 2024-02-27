@@ -121,6 +121,9 @@ final class SapiEmitter
         while (!$body->eof()) {
             $output = $body->read($this->bufferSize);
             if ($output === '') {
+                while (ob_get_level() > $level) {
+                    ob_end_flush();
+                }
                 continue;
             }
             echo $output;

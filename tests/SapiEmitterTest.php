@@ -259,15 +259,30 @@ final class SapiEmitterTest extends TestCase
         $this->assertSame($expectedLevel, $actualLevel);
     }
 
-    public function testExtraObLevel(): void
+    public static function dataExtraObLevel(): iterable
+    {
+        yield 'empty response' => [
+            '',
+            1,
+        ];
+        yield 'some response' => [
+            'Example body',
+            2,
+        ];
+    }
+
+    /**
+     * @dataProvider dataExtraObLevel
+     */
+    public function testExtraObLevel(string $responseBody, int $expectedFlushes): void
     {
         $expectedLevel = ob_get_level();
         $stream = $this->createMock(StreamInterface::class);
-        $stream->method('read')->willReturnCallback(static function () {
+        $stream->method('read')->willReturnCallback(static function () use ($responseBody) {
             ob_start();
             ob_start();
             ob_start();
-            return '-';
+            return $responseBody;
         });
         $stream->method('isReadable')->willReturn(true);
         $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
@@ -281,6 +296,7 @@ final class SapiEmitterTest extends TestCase
 
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
+        $this->assertSame($expectedFlushes, HTTPFunctions::getFlushTimes());
     }
 
     public function testFlushWithBody(): void
