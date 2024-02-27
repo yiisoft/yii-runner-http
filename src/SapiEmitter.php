@@ -10,6 +10,7 @@ use Yiisoft\Http\Status;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function flush;
+use function headers_sent;
 use function in_array;
 use function sprintf;
 
@@ -97,7 +98,6 @@ final class SapiEmitter
                 header("Content-Length: $contentLength", true);
             }
         }
-        flush();
 
         /**
          * Sends headers before the body.
@@ -125,7 +125,7 @@ final class SapiEmitter
             }
             echo $output;
             // flush the output buffer and send echoed messages to the browser
-            while (ob_get_level() >= $level) {
+            while (ob_get_level() > $level) {
                 ob_end_flush();
             }
             flush();

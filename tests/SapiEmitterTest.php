@@ -18,8 +18,6 @@ use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableStream;
 
 use function is_string;
 
-use function is_string;
-
 final class SapiEmitterTest extends TestCase
 {
     public function setUp(): void
@@ -283,6 +281,40 @@ final class SapiEmitterTest extends TestCase
 
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
+    }
+
+    public function testFlushWithBody(): void
+    {
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('read')->willReturnCallback(static fn() => '-');
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream);
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
+        $this->assertSame(2, HTTPFunctions::getFlushTimes());
+    }
+
+    public function testFlushWithoutBody(): void
+    {
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(true);
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream)
+        ;
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
+        $this->assertSame(1, HTTPFunctions::getFlushTimes());
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
