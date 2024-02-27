@@ -13,6 +13,7 @@ final class NotReadableStream implements StreamInterface, Stringable
     public function __toString(): string
     {
         throw new RuntimeException();
+        return '';
     }
 
     public function close(): void

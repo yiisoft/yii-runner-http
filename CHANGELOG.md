@@ -1,8 +1,12 @@
 # Yii Runner HTTP Change Log
 
-## 2.1.1 under development
+## 2.2.1 under development
 
 - Enh #58: Support stream output headers (@xepozz)
+
+## 2.2.0 December 25, 2023
+
+- New #49: Add ability to set custom config modifiers (@vjik)
 
 ## 2.1.0 July 10, 2023
 
