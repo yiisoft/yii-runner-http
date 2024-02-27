@@ -56,5 +56,4 @@ final class MockerExtension implements BeforeTestHook, BeforeFirstTestHook
     {
         MockerState::resetState();
     }
-
 }
