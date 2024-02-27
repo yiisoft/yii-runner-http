@@ -26,7 +26,7 @@ jobs:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master
     with:
       extensions: sockets
-      ini-values: 'disable_functions=flush,header,http_response_code,headers_sent,header_remove'
+      ini-values: disable_functions="flush,header,http_response_code,headers_sent,header_remove"
       os: >-
         ['ubuntu-latest', 'windows-latest']
       php: >-
