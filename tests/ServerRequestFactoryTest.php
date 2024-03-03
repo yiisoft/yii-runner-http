@@ -91,7 +91,7 @@ final class ServerRequestFactoryTest extends TestCase
             ->createFromParameters([]);
     }
 
-    public function bodyDataProvider(): array
+    public static function bodyDataProvider(): array
     {
         $content = 'content';
         $resource = fopen('php://memory', 'wb+');
@@ -119,7 +119,7 @@ final class ServerRequestFactoryTest extends TestCase
         $this->assertSame($expected, (string) $request->getBody());
     }
 
-    public function invalidBodyDataProvider(): array
+    public static function invalidBodyDataProvider(): array
     {
         return [
             'int' => [1],
@@ -150,7 +150,7 @@ final class ServerRequestFactoryTest extends TestCase
             ->createFromParameters($server, [], [], [], [], [], $body);
     }
 
-    public function hostParsingDataProvider(): array
+    public static function hostParsingDataProvider(): array
     {
         return [
             'host' => [

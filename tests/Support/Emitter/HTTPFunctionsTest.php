@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http\Tests\Support\Emitter;
 
-include 'httpFunctionMocks.php';
-
 use PHPUnit\Framework\TestCase;
 use Yiisoft\Http\Status;
 

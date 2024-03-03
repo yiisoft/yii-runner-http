@@ -84,7 +84,7 @@ final class RequestFactoryTest extends TestCase
         $requestFactory->create();
     }
 
-    public function bodyDataProvider(): array
+    public static function bodyDataProvider(): array
     {
         return [
             'string' => ['content', 'content'],
@@ -105,7 +105,7 @@ final class RequestFactoryTest extends TestCase
         $this->assertSame($expected, (string) $request->getBody());
     }
 
-    public function hostParsingDataProvider(): array
+    public static function hostParsingDataProvider(): array
     {
         return [
             'host' => [
@@ -387,7 +387,7 @@ final class RequestFactoryTest extends TestCase
         $this->assertSame($expectParams['query'], $request->getUri()->getQuery());
     }
 
-    public function dataPostInParsedBody(): array
+    public static function dataPostInParsedBody(): array
     {
         return [
             [

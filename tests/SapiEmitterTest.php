@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http\Tests;
 
-include 'Support/Emitter/httpFunctionMocks.php';
-
 use HttpSoft\Message\Response;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
@@ -32,7 +30,7 @@ final class SapiEmitterTest extends TestCase
         HTTPFunctions::reset();
     }
 
-    public function bufferSizeProvider(): array
+    public static function bufferSizeProvider(): array
     {
         return [[null], [1], [100], [1000]];
     }
@@ -56,7 +54,7 @@ final class SapiEmitterTest extends TestCase
         $this->expectOutputString($body);
     }
 
-    public function noBodyResponseCodeProvider(): array
+    public static function noBodyResponseCodeProvider(): array
     {
         return [[100], [101], [102], [204], [205], [304]];
     }
@@ -261,15 +259,30 @@ final class SapiEmitterTest extends TestCase
         $this->assertSame($expectedLevel, $actualLevel);
     }
 
-    public function testExtraObLevel(): void
+    public static function dataExtraObLevel(): iterable
+    {
+        yield 'empty response' => [
+            '',
+            1,
+        ];
+        yield 'some response' => [
+            'Example body',
+            2,
+        ];
+    }
+
+    /**
+     * @dataProvider dataExtraObLevel
+     */
+    public function testExtraObLevel(string $responseBody, int $expectedFlushes): void
     {
         $expectedLevel = ob_get_level();
         $stream = $this->createMock(StreamInterface::class);
-        $stream->method('read')->willReturnCallback(static function () {
+        $stream->method('read')->willReturnCallback(static function () use ($responseBody) {
             ob_start();
             ob_start();
             ob_start();
-            return '-';
+            return $responseBody;
         });
         $stream->method('isReadable')->willReturn(true);
         $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
@@ -283,6 +296,41 @@ final class SapiEmitterTest extends TestCase
 
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
+        $this->assertSame($expectedFlushes, HTTPFunctions::getFlushTimes());
+    }
+
+    public function testFlushWithBody(): void
+    {
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('read')->willReturnCallback(static fn() => '-');
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(false, true);
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream);
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
+        $this->assertSame(2, HTTPFunctions::getFlushTimes());
+    }
+
+    public function testFlushWithoutBody(): void
+    {
+        $stream = $this->createMock(StreamInterface::class);
+        $stream->method('isReadable')->willReturn(true);
+        $stream->method('eof')->willReturnOnConsecutiveCalls(true);
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1])
+            ->withBody($stream)
+        ;
+
+        $this
+            ->createEmitter()
+            ->emit($response);
+
+        $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
+        $this->assertSame(1, HTTPFunctions::getFlushTimes());
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter

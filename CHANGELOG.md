@@ -2,7 +2,7 @@
 
 ## 2.2.1 under development
 
-- no changes in this release.
+- Enh #58: Support stream output headers (@xepozz)
 
 ## 2.2.0 December 25, 2023
 

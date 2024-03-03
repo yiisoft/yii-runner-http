@@ -23,6 +23,7 @@ jobs:
   mutation:
     uses: yiisoft/actions/.github/workflows/roave-infection.yml@master
     with:
+      ini-values: disable_functions="flush,header,http_response_code,headers_sent,header_remove"
       os: >-
         ['ubuntu-latest']
       php: >-

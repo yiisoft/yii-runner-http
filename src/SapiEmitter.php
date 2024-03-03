@@ -10,6 +10,7 @@ use Yiisoft\Http\Status;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function flush;
+use function headers_sent;
 use function in_array;
 use function sprintf;
 
@@ -98,6 +99,13 @@ final class SapiEmitter
             }
         }
 
+        /**
+         * Sends headers before the body.
+         * Makes a client possible to recognize the type of the body content if it is sent with a delay,
+         * for instance, for a streamed response.
+         */
+        flush();
+
         $this->emitBody($response);
     }
 
@@ -113,6 +121,9 @@ final class SapiEmitter
         while (!$body->eof()) {
             $output = $body->read($this->bufferSize);
             if ($output === '') {
+                while (ob_get_level() > $level) {
+                    ob_end_flush();
+                }
                 continue;
             }
             echo $output;

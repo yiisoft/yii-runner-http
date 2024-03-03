@@ -28,4 +28,8 @@
             <directory>./src</directory>
         </include>
     </coverage>
+
+    <extensions>
+        <extension class="Yiisoft\Yii\Runner\Http\Tests\Support\MockerExtension"/>
+    </extensions>
 </phpunit>
