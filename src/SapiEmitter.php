@@ -118,21 +118,34 @@ final class SapiEmitter
         }
 
         $level = ob_get_level();
+
+        $size = $body->getSize();
+        if ($size !== null && $size <= $this->bufferSize) {
+            $this->emitContent($body->getContents(), $level);
+            return;
+        }
+
         while (!$body->eof()) {
-            $output = $body->read($this->bufferSize);
-            if ($output === '') {
-                while (ob_get_level() > $level) {
-                    ob_end_flush();
-                }
-                continue;
-            }
-            echo $output;
-            // flush the output buffer and send echoed messages to the browser
+            $this->emitContent($body->read($this->bufferSize), $level);
+        }
+    }
+
+    private function emitContent(string $content, int $level): void
+    {
+        if ($content === '') {
             while (ob_get_level() > $level) {
                 ob_end_flush();
             }
-            flush();
+            return;
         }
+
+        echo $content;
+
+        // flush the output buffer and send echoed messages to the browser
+        while (ob_get_level() > $level) {
+            ob_end_flush();
+        }
+        flush();
     }
 
     private function shouldOutputBody(ResponseInterface $response): bool

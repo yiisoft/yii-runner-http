@@ -3,6 +3,7 @@
 ## 2.2.1 under development
 
 - Enh #58: Support stream output headers (@xepozz)
+- Enh #64: Don't use buffered output in `SapiEmitter` when body size is less than buffer (@Gerych1984, @vjik) 
 
 ## 2.2.0 December 25, 2023
 
