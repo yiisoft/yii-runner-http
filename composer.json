@@ -40,7 +40,7 @@
         "yiisoft/log": "^2.0",
         "yiisoft/log-target-file": "^3.0",
         "yiisoft/yii-http": "^1.0",
-        "yiisoft/yii-runner": "^2.1"
+        "yiisoft/yii-runner": "^2.2"
     },
     "require-dev": {
         "httpsoft/http-message": "^1.0",
