@@ -5,6 +5,7 @@
 - Enh #58: Support stream output headers (@xepozz)
 - Enh #64: Don't use buffered output in `SapiEmitter` when body size is less than buffer (@Gerych1984, @vjik)
 - Enh #65: Add support for `psr/http-message` version `^2.0` (@vjik)
+- New #69: Add ability to set custom config merge plan file path, config and vendor directories (@vjik)
 
 ## 2.2.0 December 25, 2023
 
