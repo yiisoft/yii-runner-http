@@ -130,6 +130,18 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->assertSame(['a' => 42,], $params);
     }
 
+    public function testConfigDirectory(): void
+    {
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            configDirectory: 'custom-config',
+        );
+
+        $params = $runner->getConfig()->get('params-web');
+
+        $this->assertSame(['age' => 22], $params);
+    }
+
     public function testImmutability(): void
     {
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
