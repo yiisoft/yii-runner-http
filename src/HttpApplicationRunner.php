@@ -51,6 +51,9 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param array $nestedEventsGroups Configuration group names that are included into events' configuration group.
      * This is needed for reverse and recursive merge of events' configurations.
      * @param object[] $configModifiers Modifiers for {@see Config}.
+     * @param string $configDirectory The relative path from {@see $rootPath} to the configuration storage location.
+     * @param string $vendorDirectory The relative path from {@see $rootPath} to the vendor directory.
+     * @param string $configMergePlanFile The relative path from {@see $configDirectory} to merge plan.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
@@ -71,6 +74,9 @@ final class HttpApplicationRunner extends ApplicationRunner
         array $nestedParamsGroups = ['params'],
         array $nestedEventsGroups = ['events'],
         array $configModifiers = [],
+        string $configDirectory = 'config',
+        string $vendorDirectory = 'vendor',
+        string $configMergePlanFile = '.merge-plan.php',
     ) {
         parent::__construct(
             $rootPath,
@@ -87,6 +93,9 @@ final class HttpApplicationRunner extends ApplicationRunner
             $nestedParamsGroups,
             $nestedEventsGroups,
             $configModifiers,
+            $configDirectory,
+            $vendorDirectory,
+            $configMergePlanFile,
         );
     }
 
