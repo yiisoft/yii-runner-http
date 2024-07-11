@@ -113,7 +113,7 @@ final class HttpApplicationRunnerTest extends TestCase
     {
         $runner = $this->runner->withContainer($this->createContainer(true));
 
-        $this->expectOutputRegex("/^Exception with message 'Failure'/");
+        $this->expectOutputRegex("/^Exception with message \"Failure\"/");
 
         $runner->run();
     }
