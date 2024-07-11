@@ -2,7 +2,7 @@
 
 ## 2.3.1 under development
 
-- no changes in this release.
+- Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)  
 
 ## 2.3.0 March 10, 2024
 
