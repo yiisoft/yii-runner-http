@@ -9,6 +9,8 @@ use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Throwable;
 use Yiisoft\Definitions\Exception\CircularReferenceException;
 use Yiisoft\Definitions\Exception\InvalidConfigException;
@@ -18,8 +20,6 @@ use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
 use Yiisoft\Http\Method;
-use Yiisoft\Log\Logger;
-use Yiisoft\Log\Target\File\FileTarget;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
@@ -77,6 +77,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $configDirectory = 'config',
         string $vendorDirectory = 'vendor',
         string $configMergePlanFile = '.merge-plan.php',
+        private ?LoggerInterface $logger = null,
     ) {
         parent::__construct(
             $rootPath,
@@ -174,8 +175,10 @@ final class HttpApplicationRunner extends ApplicationRunner
             return $this->temporaryErrorHandler;
         }
 
-        $logger = new Logger([new FileTarget("$this->rootPath/runtime/logs/app.log")]);
-        return new ErrorHandler($logger, new HtmlRenderer());
+        return new ErrorHandler(
+            $this->logger ?? new NullLogger(),
+            new HtmlRenderer(),
+        );
     }
 
     /**
