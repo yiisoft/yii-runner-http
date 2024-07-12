@@ -82,6 +82,18 @@ recursive merge parameters.
 `$nestedEventsGroups` — configuration group names that are included into events' configuration group. This is needed for
 reverse and recursive merge events' configurations.
 
+`$configModifiers` — [configuration modifiers](https://github.com/yiisoft/config#configuration-modifiers).
+
+`$configDirectory` — the relative path from `$rootPath` to the configuration storage location.
+
+`$vendorDirectory` — the relative path from `$rootPath` to the vendor directory.
+
+`$configMergePlanFile` — the relative path from `$configDirectory` to merge plan.
+
+`$logger` — the logger to collect errors while container is building.
+
+`$bufferSize` — the size of the buffer in bytes to send the content of the message body (default, 8Mb).
+
 #### Immutable setters
 
 If the configuration instance settings differ from the default you can specify a customized configuration instance:

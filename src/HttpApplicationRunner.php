@@ -54,6 +54,8 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string $configDirectory The relative path from {@see $rootPath} to the configuration storage location.
      * @param string $vendorDirectory The relative path from {@see $rootPath} to the vendor directory.
      * @param string $configMergePlanFile The relative path from {@see $configDirectory} to merge plan.
+     * @param LoggerInterface|null $logger The logger to collect errors while container is building.
+     * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
@@ -78,6 +80,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $vendorDirectory = 'vendor',
         string $configMergePlanFile = '.merge-plan.php',
         private ?LoggerInterface $logger = null,
+        private ?int $bufferSize = null,
     ) {
         parent::__construct(
             $rootPath,
@@ -131,8 +134,10 @@ final class HttpApplicationRunner extends ApplicationRunner
 
         $container = $this->getContainer();
 
-        // Register error handler with real container-configured dependencies.
-        /** @var ErrorHandler $actualErrorHandler */
+        /**
+         * Register error handler with real container-configured dependencies.
+         * @var ErrorHandler $actualErrorHandler
+         */
         $actualErrorHandler = $container->get(ErrorHandler::class);
         $this->registerErrorHandler($actualErrorHandler, $temporaryErrorHandler);
 
@@ -186,7 +191,7 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
-        (new SapiEmitter())->emit($response, $request->getMethod() === Method::HEAD);
+        (new SapiEmitter($this->bufferSize))->emit($response, $request->getMethod() === Method::HEAD);
     }
 
     /**
