@@ -1,6 +1,6 @@
 # Yii Runner HTTP Change Log
 
-## 2.3.1 under development
+## 3.0.0 under development
 
 - Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)  
 
