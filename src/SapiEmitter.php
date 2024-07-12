@@ -16,6 +16,8 @@ use function sprintf;
 
 /**
  * `SapiEmitter` sends a response using standard PHP Server API i.e. with {@see header()} and "echo".
+ *
+ * @internal
  */
 final class SapiEmitter
 {
