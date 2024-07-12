@@ -2,7 +2,8 @@
 
 ## 3.0.0 under development
 
-- Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)  
+- Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)
+- Chg #77: Remove `ServerRequestFactory` (@vjik)
 
 ## 2.3.0 March 10, 2024
 
