@@ -4,6 +4,7 @@
 
 - Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)
 - Chg #77: Remove `ServerRequestFactory` (@vjik)
+- Chg #77: Mark `SapiEmitter` as internal (@vjik)
 
 ## 2.3.0 March 10, 2024
 
