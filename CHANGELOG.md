@@ -2,6 +2,7 @@
 
 ## 3.0.0 under development
 
+- New #80: Add ability to change the size of the buffer to send the content of the message body (@vjik)
 - Chg #76: Allow to use any PSR logger, `NullLogger` by default (@vjik)
 - Chg #77: Remove `ServerRequestFactory` (@vjik)
 - Chg #77: Mark `SapiEmitter` as internal (@vjik)

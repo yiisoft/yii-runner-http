@@ -37,7 +37,7 @@ final class SapiEmitter
     /**
      * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
      */
-    public function __construct(int $bufferSize = null)
+    public function __construct(?int $bufferSize = null)
     {
         if ($bufferSize !== null && $bufferSize < 1) {
             throw new InvalidArgumentException('Buffer size must be greater than zero.');
