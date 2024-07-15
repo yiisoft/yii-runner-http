@@ -67,7 +67,7 @@ final class ClosureResponse implements ResponseInterface
 
     public function getBody(): StreamInterface
     {
-        return $this->stream ?? $this->stream = (new StreamFactory())->createStream(call_user_func($this->body));
+        return $this->stream ?? $this->stream = (new StreamFactory())->createStream(($this->body)());
     }
 
     public function withBody(StreamInterface $body): MessageInterface

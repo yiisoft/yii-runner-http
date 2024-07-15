@@ -336,14 +336,14 @@ final class SapiEmitterTest extends TestCase
 
     public function testNotClosedBuffer(): void
     {
-        $response1 = new ClosureResponse(static function(){
+        $response1 = new ClosureResponse(static function() {
             return '1';
         });
-        $response2 = new ClosureResponse(static function(){
+        $response2 = new ClosureResponse(static function() {
             ob_start();
             return '2';
         });
-        $response3 = new ClosureResponse(static function(){
+        $response3 = new ClosureResponse(static function() {
             return '3';
         });
 
