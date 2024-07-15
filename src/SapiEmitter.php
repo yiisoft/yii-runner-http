@@ -56,6 +56,7 @@ final class SapiEmitter
      */
     public function emit(ResponseInterface $response, bool $withoutBody = false): void
     {
+        $level = ob_get_level();
         $status = $response->getStatusCode();
         $withoutBody = $withoutBody || !$this->shouldOutputBody($response);
         $withoutContentLength = $withoutBody || $response->hasHeader('Transfer-Encoding');
@@ -108,18 +109,16 @@ final class SapiEmitter
          */
         flush();
 
-        $this->emitBody($response);
+        $this->emitBody($response, $level);
     }
 
-    private function emitBody(ResponseInterface $response): void
+    private function emitBody(ResponseInterface $response, int $level): void
     {
         $body = $response->getBody();
 
         if ($body->isSeekable()) {
             $body->rewind();
         }
-
-        $level = ob_get_level();
 
         $size = $body->getSize();
         if ($size !== null && $size <= $this->bufferSize) {

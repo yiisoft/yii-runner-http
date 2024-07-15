@@ -12,6 +12,7 @@ use Psr\Http\Message\StreamInterface;
 use Yiisoft\Http\Status;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use Yiisoft\Yii\Runner\Http\SapiEmitter;
+use Yiisoft\Yii\Runner\Http\Tests\Support\ClosureResponse;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotReadableStream;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\NotWritableStream;
@@ -331,6 +332,28 @@ final class SapiEmitterTest extends TestCase
 
         $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
         $this->assertSame(1, HTTPFunctions::getFlushTimes());
+    }
+
+    public function testNotClosedBuffer(): void
+    {
+        $response1 = new ClosureResponse(static function(){
+            return '1';
+        });
+        $response2 = new ClosureResponse(static function(){
+            ob_start();
+            return '2';
+        });
+        $response3 = new ClosureResponse(static function(){
+            return '3';
+        });
+
+        $emitter = new SapiEmitter();
+
+        $emitter->emit($response1);
+        $emitter->emit($response2);
+        $emitter->emit($response3);
+
+        $this->assertSame('123', $this->getActualOutput());
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
