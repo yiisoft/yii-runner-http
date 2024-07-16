@@ -9,5 +9,5 @@ application when you upgrade the package from one version to another.
 
 ## Upgrade from 2.x
 
-- Pass PSR-3 compatible logger to `HttpApplicationRunner` to log error while container is building.
+- Pass PSR-3 compatible logger to `HttpApplicationRunner` to log errors while container is building.
 - Remove `ServerRequestFactory` and `SapiEmitter` usage from your code.
