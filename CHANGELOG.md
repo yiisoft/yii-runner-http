@@ -1,5 +1,9 @@
 # Yii Runner HTTP Change Log
 
+## 3.0.1 under development
+
+- no changes in this release.
+
 ## 3.0.0 July 16, 2024
 
 - New #80: Add ability to change the size of the buffer to send the content of the message body (@vjik)
