@@ -32,8 +32,6 @@ use function microtime;
  */
 final class HttpApplicationRunner extends ApplicationRunner
 {
-    private ?ErrorHandler $temporaryErrorHandler = null;
-
     /**
      * @param string $rootPath The absolute path to the project root.
      * @param bool $debug Whether the debug mode is enabled.
@@ -54,8 +52,11 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string $configDirectory The relative path from {@see $rootPath} to the configuration storage location.
      * @param string $vendorDirectory The relative path from {@see $rootPath} to the vendor directory.
      * @param string $configMergePlanFile The relative path from {@see $configDirectory} to merge plan.
-     * @param LoggerInterface|null $logger The logger to collect errors while container is building.
+     * @param LoggerInterface|null $logger (deprecated) The logger to collect errors while container is building.
      * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
+     * @param ErrorHandler|null $temporaryErrorHandler The temporary error handler instance that used to handle
+     * the creation of configuration and container instances, then the error handler configured in your application
+     * configuration will be used.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
@@ -81,6 +82,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $configMergePlanFile = '.merge-plan.php',
         private ?LoggerInterface $logger = null,
         private ?int $bufferSize = null,
+        private ?ErrorHandler $temporaryErrorHandler = null,
     ) {
         parent::__construct(
             $rootPath,
@@ -104,6 +106,8 @@ final class HttpApplicationRunner extends ApplicationRunner
     }
 
     /**
+     * @deprecated Use `$temporaryErrorHandler` constructor parameter instead.
+     *
      * Returns a new instance with the specified temporary error handler instance {@see ErrorHandler}.
      *
      * A temporary error handler is needed to handle the creation of configuration and container instances,
@@ -176,14 +180,11 @@ final class HttpApplicationRunner extends ApplicationRunner
 
     private function createTemporaryErrorHandler(): ErrorHandler
     {
-        if ($this->temporaryErrorHandler !== null) {
-            return $this->temporaryErrorHandler;
-        }
-
-        return new ErrorHandler(
-            $this->logger ?? new NullLogger(),
-            new HtmlRenderer(),
-        );
+        return $this->temporaryErrorHandler ??
+            new ErrorHandler(
+                $this->logger ?? new NullLogger(),
+                new HtmlRenderer(),
+            );
     }
 
     /**

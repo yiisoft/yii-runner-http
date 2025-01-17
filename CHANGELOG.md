@@ -1,8 +1,9 @@
 # Yii Runner HTTP Change Log
 
-## 3.0.1 under development
+## 3.1.0 under development
 
-- no changes in this release.
+- Chg #85: Add `$temporaryErrorHandler` parameter to `HttpApplicationRunner` constructor. Mark parameter `$logger` and 
+  method `withTemporaryErrorHandler()` as deprecated (@vjik)
 
 ## 3.0.0 July 16, 2024
 
