@@ -27,7 +27,7 @@ final class MockerExtension implements Extension
                     MockerExtension::load();
                 }
             },
-            new class implements PreparationStartedSubscriber {
+            new class () implements PreparationStartedSubscriber {
                 public function notify(PreparationStarted $event): void
                 {
                     MockerState::resetState();
