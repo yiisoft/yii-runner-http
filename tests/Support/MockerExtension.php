@@ -4,15 +4,39 @@ declare(strict_types=1);
 
 namespace Yiisoft\Yii\Runner\Http\Tests\Support;
 
-use PHPUnit\Runner\BeforeFirstTestHook;
-use PHPUnit\Runner\BeforeTestHook;
+use PHPUnit\Event\Test\PreparationStarted;
+use PHPUnit\Event\Test\PreparationStartedSubscriber;
+use PHPUnit\Event\TestSuite\Started;
+use PHPUnit\Event\TestSuite\StartedSubscriber;
+use PHPUnit\Runner\Extension\Extension;
+use PHPUnit\Runner\Extension\Facade;
+use PHPUnit\Runner\Extension\ParameterCollection;
+use PHPUnit\TextUI\Configuration\Configuration;
 use Xepozz\InternalMocker\Mocker;
 use Xepozz\InternalMocker\MockerState;
 use Yiisoft\Yii\Runner\Http\Tests\Support\Emitter\HTTPFunctions;
 
-final class MockerExtension implements BeforeTestHook, BeforeFirstTestHook
+final class MockerExtension implements Extension
 {
-    public function executeBeforeFirstTest(): void
+    public function bootstrap(Configuration $configuration, Facade $facade, ParameterCollection $parameters): void
+    {
+        $facade->registerSubscribers(
+            new class () implements StartedSubscriber {
+                public function notify(Started $event): void
+                {
+                    MockerExtension::load();
+                }
+            },
+            new class implements PreparationStartedSubscriber {
+                public function notify(PreparationStarted $event): void
+                {
+                    MockerState::resetState();
+                }
+            },
+        );
+    }
+
+    public static function load(): void
     {
         $mocks = [
             [
@@ -23,7 +47,11 @@ final class MockerExtension implements BeforeTestHook, BeforeFirstTestHook
             [
                 'namespace' => '',
                 'name' => 'header',
-                'function' => fn(string $string, bool $replace = true, ?int $http_response_code = null) => HTTPFunctions::header($string, $replace, $http_response_code),
+                'function' => fn(
+                    string $string,
+                    bool $replace = true,
+                    ?int $http_response_code = null
+                ) => HTTPFunctions::header($string, $replace, $http_response_code),
             ],
             [
                 'namespace' => '',
@@ -50,10 +78,5 @@ final class MockerExtension implements BeforeTestHook, BeforeFirstTestHook
         $mocker = new Mocker();
         $mocker->load($mocks);
         MockerState::saveState();
-    }
-
-    public function executeBeforeTest(string $test): void
-    {
-        MockerState::resetState();
     }
 }
