@@ -80,8 +80,8 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $configDirectory = 'config',
         string $vendorDirectory = 'vendor',
         string $configMergePlanFile = '.merge-plan.php',
-        private ?LoggerInterface $logger = null,
-        private ?int $bufferSize = null,
+        private readonly ?LoggerInterface $logger = null,
+        private readonly ?int $bufferSize = null,
         private ?ErrorHandler $temporaryErrorHandler = null,
     ) {
         parent::__construct(
