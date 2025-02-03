@@ -8,6 +8,8 @@ use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
+use PHPUnit\Framework\Attributes\BackupGlobals;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 use Yiisoft\Yii\Runner\Http\RequestFactory;
@@ -92,9 +94,7 @@ final class RequestFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider bodyDataProvider
-     */
+    #[DataProvider('bodyDataProvider')]
     public function testBody(string $expected, ?string $body): void
     {
         $_SERVER = ['REQUEST_METHOD' => 'GET'];
@@ -350,9 +350,7 @@ final class RequestFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider hostParsingDataProvider
-     */
+    #[DataProvider('hostParsingDataProvider')]
     public function testHostParsingFromParameters(array $serverParams, array $expectParams): void
     {
         $_SERVER = $serverParams;
@@ -368,10 +366,8 @@ final class RequestFactoryTest extends TestCase
         $this->assertSame($expectParams['query'], $request->getUri()->getQuery());
     }
 
-    /**
-     * @dataProvider hostParsingDataProvider
-     * @backupGlobals enabled
-     */
+    #[DataProvider('hostParsingDataProvider')]
+    #[BackupGlobals(true)]
     public function testHostParsingFromGlobals(array $serverParams, array $expectParams): void
     {
         $_SERVER = $serverParams;
@@ -401,9 +397,7 @@ final class RequestFactoryTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataPostInParsedBody
-     */
+    #[DataProvider('dataPostInParsedBody')]
     public function testPostInParsedBody(array $post, string $contentType): void
     {
         $_SERVER = [

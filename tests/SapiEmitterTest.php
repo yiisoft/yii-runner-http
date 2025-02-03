@@ -6,6 +6,7 @@ namespace Yiisoft\Yii\Runner\Http\Tests;
 
 use HttpSoft\Message\Response;
 use InvalidArgumentException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -36,9 +37,7 @@ final class SapiEmitterTest extends TestCase
         return [[null], [1], [100], [1000]];
     }
 
-    /**
-     * @dataProvider bufferSizeProvider
-     */
+    #[DataProvider('bufferSizeProvider')]
     public function testEmit(?int $bufferSize): void
     {
         $body = 'Example body';
@@ -60,9 +59,7 @@ final class SapiEmitterTest extends TestCase
         return [[100], [101], [102], [204], [205], [304]];
     }
 
-    /**
-     * @dataProvider noBodyResponseCodeProvider
-     */
+    #[DataProvider('noBodyResponseCodeProvider')]
     public function testNoBodyForResponseCode(int $code): void
     {
         $response = $this->createResponse($code, ['X-Test' => 1], 'Example body');
@@ -272,9 +269,7 @@ final class SapiEmitterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataExtraObLevel
-     */
+    #[DataProvider('dataExtraObLevel')]
     public function testExtraObLevel(string $responseBody, int $expectedFlushes): void
     {
         $expectedLevel = ob_get_level();
@@ -298,6 +293,8 @@ final class SapiEmitterTest extends TestCase
         $actualLevel = ob_get_level();
         $this->assertSame($expectedLevel, $actualLevel);
         $this->assertSame($expectedFlushes, HTTPFunctions::getFlushTimes());
+
+        $this->expectOutputString($responseBody);
     }
 
     public function testFlushWithBody(): void
@@ -315,6 +312,8 @@ final class SapiEmitterTest extends TestCase
 
         $this->assertSame(['X-Test: 1'], HTTPFunctions::getHeader('X-Test'));
         $this->assertSame(2, HTTPFunctions::getFlushTimes());
+
+        $this->expectOutputString('-');
     }
 
     public function testFlushWithoutBody(): void
@@ -353,7 +352,7 @@ final class SapiEmitterTest extends TestCase
         $emitter->emit($response2);
         $emitter->emit($response3);
 
-        $this->assertSame('123', $this->getActualOutput());
+        $this->assertSame('123', $this->getActualOutputForAssertion());
     }
 
     private function createEmitter(?int $bufferSize = null): SapiEmitter
