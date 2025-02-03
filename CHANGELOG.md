@@ -5,6 +5,7 @@
 - Chg #85: Add `$temporaryErrorHandler` parameter to `HttpApplicationRunner` constructor. Mark parameter `$logger` and 
   method `withTemporaryErrorHandler()` as deprecated (@vjik)
 - Enh #86: Raise the minimum PHP version to 8.1 and minor refactoring (@vjik)
+- Chg #87: Change PHP constraint in `composer.json` to `~8.1.0 || ~8.2.0 || ~8.3.0 || ~8.4.0` (@vjik)
 
 ## 3.0.0 July 16, 2024
 
