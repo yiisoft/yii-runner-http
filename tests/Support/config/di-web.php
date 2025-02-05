@@ -22,12 +22,11 @@ use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Yiisoft\Definitions\DynamicReference;
 use Yiisoft\Definitions\Reference;
-use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
+use Yiisoft\ErrorHandler\Factory\ThrowableResponseFactory;
 use Yiisoft\ErrorHandler\Renderer\PlainTextRenderer;
 use Yiisoft\ErrorHandler\ThrowableRendererInterface;
+use Yiisoft\ErrorHandler\ThrowableResponseFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
-use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
@@ -36,7 +35,6 @@ use Yiisoft\Yii\Http\Handler\NotFoundHandler;
 return [
     EventDispatcherInterface::class => SimpleEventDispatcher::class,
     LoggerInterface::class => SimpleLogger::class,
-    WrapperFactoryInterface::class => WrapperFactory::class,
     ResponseFactoryInterface::class => ResponseFactory::class,
     ServerRequestFactoryInterface::class => ServerRequestFactory::class,
     StreamFactoryInterface::class => StreamFactory::class,
@@ -44,7 +42,8 @@ return [
     UriFactoryInterface::class => UriFactory::class,
     UploadedFileFactoryInterface::class => UploadedFileFactory::class,
 
-    ErrorCatcher::class => [
+    ThrowableResponseFactoryInterface::class => [
+        'class' => ThrowableResponseFactory::class,
         'forceContentType()' => ['text/plain'],
     ],
 
