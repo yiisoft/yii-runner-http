@@ -37,8 +37,6 @@ use Yiisoft\ErrorHandler\ThrowableResponseFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
-use Yiisoft\Middleware\Dispatcher\WrapperFactory;
-use Yiisoft\Middleware\Dispatcher\WrapperFactoryInterface;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
