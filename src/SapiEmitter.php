@@ -64,7 +64,7 @@ final class SapiEmitter implements EmitterInterface
         if (!$response->hasHeader(Header::TRANSFER_ENCODING) && !$response->hasHeader(Header::CONTENT_LENGTH)) {
             $contentLength = $response->getBody()->getSize();
             if ($contentLength !== null) {
-                 header(
+                header(
                     sprintf('%s: %s', Header::CONTENT_LENGTH, $contentLength),
                 );
             }

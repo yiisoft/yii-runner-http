@@ -19,7 +19,6 @@ use Yiisoft\Di\NotFoundException;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
-use Yiisoft\Http\Header;
 use Yiisoft\Http\Method;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
