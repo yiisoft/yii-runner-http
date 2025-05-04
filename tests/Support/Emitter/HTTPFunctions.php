@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This class used to override some `header*()` functions and `http_response_code()`.
  *

@@ -25,6 +25,8 @@ name: build
 jobs:
   phpunit:
     uses: yiisoft/actions/.github/workflows/phpunit.yml@master
+    secrets:
+      codecovToken: ${{ secrets.CODECOV_TOKEN }}
     with:
       extensions: sockets
       ini-values: disable_functions="flush,header,http_response_code,headers_sent,header_remove"
