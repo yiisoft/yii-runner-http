@@ -6,7 +6,9 @@ namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerExceptionInterface;
+use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
@@ -32,6 +34,9 @@ use function microtime;
  */
 final class HttpApplicationRunner extends ApplicationRunner
 {
+    private ?ServerRequestInterface $testRequest = null;
+    private ?ResponseInterface $testResponse = null;
+
     /**
      * @param string $rootPath The absolute path to the project root.
      * @param bool $debug Whether the debug mode is enabled.
@@ -151,13 +156,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         /** @var Application $application */
         $application = $container->get(Application::class);
 
-        /**
-         * @var RequestFactory $requestFactory
-         */
-        $requestFactory = $container->get(RequestFactory::class);
-        $request = $requestFactory->create();
-
-        $request = $request->withAttribute('applicationStartTime', $startTime);
+        $request = $this->createRequest($container)->withAttribute('applicationStartTime', $startTime);
         try {
             $application->start();
             $response = $application->handle($request);
@@ -178,6 +177,27 @@ final class HttpApplicationRunner extends ApplicationRunner
         }
     }
 
+    public function testRun(ServerRequestInterface $request): ResponseInterface
+    {
+        $this->testRequest = $request;
+        $this->run();
+        /** @var ResponseInterface After `run()` property `$testResponse` is not nullable. */
+        return $this->testResponse;
+    }
+
+    private function createRequest(ContainerInterface $container): ServerRequestInterface
+    {
+        if ($this->testRequest !== null) {
+            return $this->testRequest;
+        }
+
+        /**
+         * @var RequestFactory $requestFactory
+         */
+        $requestFactory = $container->get(RequestFactory::class);
+        return $requestFactory->create();
+    }
+
     private function createTemporaryErrorHandler(): ErrorHandler
     {
         return $this->temporaryErrorHandler ??
@@ -192,6 +212,11 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
+        if ($this->testRequest !== null) {
+            $this->testResponse = $response;
+            return;
+        }
+
         (new SapiEmitter($this->bufferSize))->emit($response, $request->getMethod() === Method::HEAD);
     }
 
