@@ -19,6 +19,7 @@ use Yiisoft\Di\NotFoundException;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
+use Yiisoft\Http\Header;
 use Yiisoft\Http\Method;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
@@ -192,7 +193,12 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
-        (new SapiEmitter($this->bufferSize))->emit($response, $request->getMethod() === Method::HEAD);
+        if ($request->getMethod() === Method::HEAD) {
+            (new SapiEmitter($this->bufferSize))->emitHeaders($response);
+            return;
+        }
+
+        (new SapiEmitter($this->bufferSize))->emit($response);
     }
 
     /**

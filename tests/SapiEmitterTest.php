@@ -116,13 +116,13 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testNoBodyAndContentLengthIfEmitToldSo(): void
+    public function testEmitHeadersAndContentLengthIfEmitToldSo(): void
     {
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], 'Example body');
 
         $this
             ->createEmitter()
-            ->emit($response, true);
+            ->emitHeaders($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
