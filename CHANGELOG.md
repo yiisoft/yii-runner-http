@@ -2,7 +2,8 @@
 
 ## 3.1.1 under development
 
-- no changes in this release.
+- Enh #91: Minor refactor internal class `RequestFactory`: explicitly mark read only properties and type to parameter of
+  `create()` method (@vjik)  
 
 ## 3.1.0 February 21, 2025
 
