@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Yiisoft\Yii\Runner\Http\Tests;
+namespace Yiisoft\Yii\Runner\Http\Tests\RequestFactory;
 
 use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
@@ -18,6 +18,24 @@ use function fopen;
 
 final class RequestFactoryTest extends TestCase
 {
+    private array $globalServer = [];
+    private array $globalPost = [];
+    private array $globalFiles = [];
+
+    protected function setUp(): void
+    {
+        $this->globalServer = $_SERVER;
+        $this->globalPost = $_POST;
+        $this->globalFiles = $_FILES;
+    }
+
+    protected function tearDown(): void
+    {
+        $_SERVER = $this->globalServer;
+        $_POST = $this->globalPost;
+        $_FILES = $this->globalFiles;
+    }
+
     public function testUploadedFiles(): void
     {
         $_SERVER = [
@@ -28,16 +46,16 @@ final class RequestFactoryTest extends TestCase
             'file1' => [
                 'name' => $firstFileName = 'facepalm.jpg',
                 'type' => 'image/jpeg',
-                'tmp_name' => '/tmp/123',
+                'tmp_name' => __DIR__ . '/image',
                 'error' => '0',
-                'size' => '31059',
+                'size' => '463',
             ],
             'file2' => [
                 'name' => [$secondFileName = 'facepalm2.jpg', $thirdFileName = 'facepalm3.jpg'],
                 'type' => ['image/jpeg', 'image/jpeg'],
-                'tmp_name' => ['/tmp/phpJutmOS', '/tmp/php9bNI8F'],
+                'tmp_name' => [__DIR__ . '/image2', __DIR__ . '/image3'],
                 'error' => ['0', '0'],
-                'size' => ['78085', '61429'],
+                'size' => ['778', '1415'],
             ],
         ];
 
@@ -453,8 +471,8 @@ final class RequestFactoryTest extends TestCase
      */
     private function createResource(?string $value)
     {
-        return $value == null
+        return $value === null
             ? false
-            : fopen('data://text/plain,' . $value, 'r');
+            : fopen('data://text/plain,' . $value, 'rb');
     }
 }

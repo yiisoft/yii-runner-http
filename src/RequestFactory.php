@@ -32,10 +32,10 @@ use function ucwords;
 final class RequestFactory
 {
     public function __construct(
-        private ServerRequestFactoryInterface $serverRequestFactory,
-        private UriFactoryInterface $uriFactory,
-        private UploadedFileFactoryInterface $uploadedFileFactory,
-        private StreamFactoryInterface $streamFactory,
+        private readonly ServerRequestFactoryInterface $serverRequestFactory,
+        private readonly UriFactoryInterface $uriFactory,
+        private readonly UploadedFileFactoryInterface $uploadedFileFactory,
+        private readonly StreamFactoryInterface $streamFactory,
     ) {
     }
 
@@ -46,9 +46,9 @@ final class RequestFactory
      *
      * @return ServerRequestInterface The server request instance.
      */
-    public function create($body = null): ServerRequestInterface
+    public function create(mixed $body = null): ServerRequestInterface
     {
-        // Create base request
+        // Create a base request
         $method = $_SERVER['REQUEST_METHOD'] ?? null;
         if ($method === null) {
             throw new RuntimeException('Unable to determine HTTP request method.');
@@ -65,7 +65,6 @@ final class RequestFactory
 
         // Add protocol
         $protocol = '1.1';
-        /** @psalm-suppress RedundantCondition It's bug in Psalm < 5 */
         if (array_key_exists('SERVER_PROTOCOL', $_SERVER) && $_SERVER['SERVER_PROTOCOL'] !== '') {
             $protocol = str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']);
         }
@@ -96,7 +95,6 @@ final class RequestFactory
 
         // Add uploaded files
         $files = [];
-        /** @psalm-suppress PossiblyInvalidArrayAccess,PossiblyInvalidArrayOffset It's bug in Psalm < 5 */
         foreach ($_FILES as $class => $info) {
             $files[$class] = [];
             $this->populateUploadedFileRecursive(
