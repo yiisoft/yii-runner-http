@@ -13,14 +13,18 @@ use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 interface EmitterInterface
 {
     /**
-     * Sends the response to the client.
+     * Sends the response to the client with headers and body.
+     *
+     * @param ResponseInterface $response Response object to send.
      *
      * @throws HeadersHaveBeenSentException
      */
     public function emit(ResponseInterface $response): void;
 
     /**
-     * Sends only the headers of the response to the client.
+     * Sends the response to the client with headers only.
+     *
+     * @param ResponseInterface $response Response object to send.
      *
      * @throws HeadersHaveBeenSentException
      */
