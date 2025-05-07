@@ -84,6 +84,7 @@
     },
     "scripts": {
         "test": "php -ddisable_functions=flush,header,http_response_code,headers_sent,header_remove ./vendor/bin/phpunit",
-        "test-watch": "phpunit-watcher watch"
+        "test-watch": "phpunit-watcher watch",
+        "mutation": "php -ddisable_functions=flush,header,http_response_code,headers_sent,header_remove ./vendor/bin/roave-infection-static-analysis-plugin"
     }
 }
