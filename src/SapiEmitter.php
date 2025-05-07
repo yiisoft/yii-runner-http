@@ -48,15 +48,10 @@ final class SapiEmitter implements EmitterInterface
     public function emit(ResponseInterface $response): void
     {
         $level = ob_get_level();
-        $withoutBody = !$this->shouldOutputBody($response);
 
-        if ($withoutBody) {
+        if (!$this->shouldOutputBody($response)) {
             $response = $response->withoutHeader(Header::CONTENT_LENGTH);
-        }
-
-        $this->emitHeaders($response);
-
-        if ($withoutBody) {
+            $this->emitHeaders($response);
             return;
         }
 
@@ -64,11 +59,11 @@ final class SapiEmitter implements EmitterInterface
         if (!$response->hasHeader(Header::TRANSFER_ENCODING) && !$response->hasHeader(Header::CONTENT_LENGTH)) {
             $contentLength = $response->getBody()->getSize();
             if ($contentLength !== null) {
-                header(
-                    sprintf('%s: %s', Header::CONTENT_LENGTH, $contentLength),
-                );
+                $response = $response->withHeader(Header::CONTENT_LENGTH, (string) $contentLength);
             }
         }
+
+        $this->emitHeaders($response);
 
         /**
          * Sends headers before the body.

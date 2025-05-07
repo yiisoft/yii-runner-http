@@ -32,6 +32,8 @@ use function microtime;
  */
 final class HttpApplicationRunner extends ApplicationRunner
 {
+    private readonly EmitterInterface $emitter;
+
     /**
      * @param string $rootPath The absolute path to the project root.
      * @param bool $debug Whether the debug mode is enabled.
@@ -54,9 +56,12 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string $configMergePlanFile The relative path from {@see $configDirectory} to merge plan.
      * @param LoggerInterface|null $logger (deprecated) The logger to collect errors while container is building.
      * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
+     * Deprecated and will be removed in the next major version. Use custom emitter instead.
      * @param ErrorHandler|null $temporaryErrorHandler The temporary error handler instance that used to handle
      * the creation of configuration and container instances, then the error handler configured in your application
      * configuration will be used.
+     * @param EmitterInterface|null $emitter The emitter instance that used to send the response. By default, it uses
+     * {@see SapiEmitter}.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
@@ -81,9 +86,12 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $vendorDirectory = 'vendor',
         string $configMergePlanFile = '.merge-plan.php',
         private readonly ?LoggerInterface $logger = null,
-        private readonly ?int $bufferSize = null,
+        ?int $bufferSize = null,
         private ?ErrorHandler $temporaryErrorHandler = null,
+        ?EmitterInterface $emitter = null,
     ) {
+        $this->emitter = $emitter ?? new SapiEmitter($bufferSize);
+
         parent::__construct(
             $rootPath,
             $debug,
@@ -192,12 +200,9 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
-        if ($request->getMethod() === Method::HEAD) {
-            (new SapiEmitter($this->bufferSize))->emitHeaders($response);
-            return;
-        }
-
-        (new SapiEmitter($this->bufferSize))->emit($response);
+        $request->getMethod() === Method::HEAD
+            ? $this->emitter->emitHeaders($response)
+            : $this->emitter->emit($response);
     }
 
     /**

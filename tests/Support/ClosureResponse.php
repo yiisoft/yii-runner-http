@@ -14,6 +14,10 @@ use Psr\Http\Message\StreamInterface;
 final class ClosureResponse implements ResponseInterface
 {
     private ?StreamInterface $stream = null;
+    /**
+     * @var array[]
+     */
+    private array $headers;
 
     public function __construct(
         private Closure $body,
@@ -37,12 +41,12 @@ final class ClosureResponse implements ResponseInterface
 
     public function hasHeader(string $name): bool
     {
-        return false;
+        return isset($this->headers[$name]);
     }
 
     public function getHeader(string $name): array
     {
-        throw new LogicException('Not implemented.');
+        return $this->headers[$name] ?? [];
     }
 
     public function getHeaderLine(string $name): string
@@ -52,7 +56,9 @@ final class ClosureResponse implements ResponseInterface
 
     public function withHeader(string $name, $value): MessageInterface
     {
-        throw new LogicException('Not implemented.');
+        $new = clone $this;
+        $new->headers[$name] = (array) $value;
+        return $new;
     }
 
     public function withAddedHeader(string $name, $value): MessageInterface
