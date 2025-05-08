@@ -59,7 +59,7 @@ final class SapiEmitter
         $level = ob_get_level();
         $status = $response->getStatusCode();
         $withoutBody = $withoutBody || !$this->shouldOutputBody($response);
-        $withoutContentLength = $withoutBody || $response->hasHeader('Transfer-Encoding');
+        $withoutContentLength = $response->hasHeader('Transfer-Encoding');
 
         if ($withoutContentLength) {
             $response = $response->withoutHeader('Content-Length');
