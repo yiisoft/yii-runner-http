@@ -20,13 +20,4 @@ interface EmitterInterface
      * @throws HeadersHaveBeenSentException
      */
     public function emit(ResponseInterface $response): void;
-
-    /**
-     * Sends the response to the client with headers only.
-     *
-     * @param ResponseInterface $response Response object to send.
-     *
-     * @throws HeadersHaveBeenSentException
-     */
-    public function emitHeaders(ResponseInterface $response): void;
 }
