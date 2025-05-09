@@ -116,11 +116,11 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testNoBodyAndNoAutoAddedContentLengthIfEmitWithoutBody(): void
+    public function testEmitHeadersAndNoAutoAddedContentLengthIfEmitWithoutBody(): void
     {
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], 'Example body');
 
-        $this->createEmitter()->emit($response, true);
+        $this->createEmitter()->emitHeaders($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
@@ -128,7 +128,7 @@ final class SapiEmitterTest extends TestCase
         $this->expectOutputString('');
     }
 
-    public function testNoBodyAndKeepContentLengthIfEmitWithoutBody(): void
+    public function testEmitHeadersAndKeepContentLength(): void
     {
         $response = $this->createResponse(
             Status::OK,
@@ -136,7 +136,7 @@ final class SapiEmitterTest extends TestCase
             'Example body'
         );
 
-        $this->createEmitter()->emit($response, true);
+        $this->createEmitter()->emitHeaders($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
