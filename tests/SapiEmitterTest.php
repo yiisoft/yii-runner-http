@@ -116,17 +116,31 @@ final class SapiEmitterTest extends TestCase
         $this->assertContains('X-Test: 42', $this->getHeaders());
     }
 
-    public function testEmitHeadersAndContentLengthIfEmitToldSo(): void
+    public function testEmitHeadersAndNoAutoAddedContentLengthIfEmitWithoutBody(): void
     {
         $response = $this->createResponse(Status::OK, ['X-Test' => 1], 'Example body');
 
-        $this
-            ->createEmitter()
-            ->emitHeaders($response);
+        $this->createEmitter()->emitHeaders($response);
 
         $this->assertSame(Status::OK, $this->getResponseCode());
         $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
         $this->assertFalse(HTTPFunctions::hasHeader('Content-Length'));
+        $this->expectOutputString('');
+    }
+
+    public function testNoBodyAndKeepContentLengthIfEmitWithoutBody(): void
+    {
+        $response = $this->createResponse(
+            Status::OK,
+            ['X-Test' => 1, 'Content-Length' => 12],
+            'Example body'
+        );
+
+        $this->createEmitter()->emit($response, true);
+
+        $this->assertSame(Status::OK, $this->getResponseCode());
+        $this->assertTrue(HTTPFunctions::hasHeader('X-Test'));
+        $this->assertTrue(HTTPFunctions::hasHeader('Content-Length'));
         $this->expectOutputString('');
     }
 
@@ -148,7 +162,7 @@ final class SapiEmitterTest extends TestCase
     public function testNoContentLengthHeaderWhenBodyIsEmpty(): void
     {
         $length = 100;
-        $response = $this->createResponse(Status::OK, ['Content-Length' => $length, 'X-Test' => 1], '');
+        $response = $this->createResponse(Status::OK, ['X-Test' => 1], '');
 
         $this
             ->createEmitter()

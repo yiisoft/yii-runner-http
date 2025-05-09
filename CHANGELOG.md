@@ -6,6 +6,7 @@
   parameter of `create()` method (@vjik)
 - New #92: Add `EmitterInterface`, add `$emitter` parameter to `HttpApplicationRunner` constructor, and make
   `SapiEmitter` public class (@vjik)
+- Bug #93: Don't remove `Content-Length` header if it is set and emit is called without body (@vjik)
 
 ## 3.1.0 February 21, 2025
 
