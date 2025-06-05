@@ -4,8 +4,7 @@
 
 - Enh #91: Minor refactor internal class `RequestFactory`: explicitly mark read-only properties and add type to
   parameter of `create()` method (@vjik)
-- New #92: Add `EmitterInterface`, add `$emitter` parameter to `HttpApplicationRunner` constructor, and make
-  `SapiEmitter` public class (@vjik)
+- New #92: Add `$emitter` parameter to `HttpApplicationRunner` constructor (@vjik)
 - Bug #93: Don't remove `Content-Length` header if it is set and emit is called without body (@vjik)
 
 ## 3.1.0 February 21, 2025
