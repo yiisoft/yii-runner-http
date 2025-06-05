@@ -29,7 +29,6 @@ use Yiisoft\PsrEmitter\SapiEmitter;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
-
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function in_array;
@@ -217,7 +216,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         try {
             $this->emitter->emit($response);
         } catch (EmitterHeadersHaveBeenSentException) {
-             throw new HeadersHaveBeenSentException();
+            throw new HeadersHaveBeenSentException();
         }
     }
 
