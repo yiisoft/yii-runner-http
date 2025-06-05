@@ -24,11 +24,11 @@ use Yiisoft\Http\Header;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\PsrEmitter\EmitterInterface;
+use Yiisoft\PsrEmitter\HeadersHaveBeenSentException;
 use Yiisoft\PsrEmitter\SapiEmitter;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
-use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function in_array;
 use function microtime;

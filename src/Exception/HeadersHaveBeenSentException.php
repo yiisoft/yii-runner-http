@@ -9,6 +9,9 @@ use Yiisoft\FriendlyException\FriendlyExceptionInterface;
 
 use function headers_sent;
 
+/**
+ * @deprecated Use {@see \Yiisoft\PsrEmitter\HeadersHaveBeenSentException} instead.
+ */
 final class HeadersHaveBeenSentException extends Exception implements FriendlyExceptionInterface
 {
     public function getName(): string
