@@ -10,6 +10,7 @@ use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -38,6 +39,7 @@ use Yiisoft\ErrorHandler\ThrowableResponseFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
+use Yiisoft\PsrEmitter\FakeEmitter;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
@@ -175,6 +177,28 @@ final class HttpApplicationRunnerTest extends TestCase
             Emitter can't send headers once the headers block has already been sent.
             SOLUTION,
             $exception->getSolution(),
+        );
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testHeadRequest(bool $useHeadRequestMiddleware): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: $emitter,
+            useHeadRequestMiddleware: $useHeadRequestMiddleware,
+        );
+
+        $_SERVER['REQUEST_METHOD'] = 'HEAD';
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            $useHeadRequestMiddleware ? '' : 'OK',
+            $response->getBody()->getContents()
         );
     }
 
