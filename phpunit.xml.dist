@@ -29,8 +29,4 @@
             <directory suffix=".php">./src</directory>
         </include>
     </source>
-
-    <extensions>
-        <bootstrap class="Yiisoft\Yii\Runner\Http\Tests\Support\MockerExtension" />
-    </extensions>
 </phpunit>
