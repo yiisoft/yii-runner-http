@@ -23,6 +23,7 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Definitions\DynamicReference;
@@ -46,7 +47,12 @@ use Yiisoft\Yii\Http\Event\ApplicationShutdown;
 use Yiisoft\Yii\Http\Event\ApplicationStartup;
 use Yiisoft\Yii\Http\Event\BeforeRequest;
 use Yiisoft\Yii\Http\Handler\NotFoundHandler;
+use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
+use Yiisoft\Yii\Runner\Http\Tests\Support\EmitterWithHeadersHaveBeenSentException;
+
+use function PHPUnit\Framework\assertInstanceOf;
+use function PHPUnit\Framework\assertSame;
 
 final class HttpApplicationRunnerTest extends TestCase
 {
@@ -146,6 +152,30 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
         $this->assertNotSame($this->runner, $this->runner->withContainer($this->createContainer()));
         $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));
+    }
+
+    public function testHeadersHaveBeenSentException(): void
+    {
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: new EmitterWithHeadersHaveBeenSentException(),
+        );
+
+        $exception = null;
+        try {
+            $runner->run();
+        } catch (Throwable $exception) {
+        }
+
+        assertInstanceOf(HeadersHaveBeenSentException::class, $exception);
+        assertSame('HTTP headers have been sent.', $exception->getName());
+        assertSame(
+            <<<SOLUTION
+            Headers already sent in  on line 0
+            Emitter can't send headers once the headers block has already been sent.
+            SOLUTION,
+            $exception->getSolution(),
+        );
     }
 
     private function createContainer(bool $throwException = false): ContainerInterface
