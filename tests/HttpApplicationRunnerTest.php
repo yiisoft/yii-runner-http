@@ -202,6 +202,27 @@ final class HttpApplicationRunnerTest extends TestCase
         );
     }
 
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testContentLength(bool $useContentLengthMiddleware): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: $emitter,
+            useContentLengthMiddleware: $useContentLengthMiddleware,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            $useContentLengthMiddleware ? ['Content-Length' => ['2']] : [],
+            $response->getHeaders(),
+        );
+    }
+
     private function createContainer(bool $throwException = false): ContainerInterface
     {
         $containerConfig = ContainerConfig::create()
