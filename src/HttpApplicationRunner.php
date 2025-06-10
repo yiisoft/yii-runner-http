@@ -69,8 +69,8 @@ final class HttpApplicationRunner extends ApplicationRunner
      * configuration will be used.
      * @param EmitterInterface|null $emitter The emitter instance that used to send the response. By default, it uses
      * {@see SapiEmitter}.
-     * @param bool $useRemoveBodyByStatusMiddleware Whether to remove the body of the response. Deprecated and will be
-     * removed in the next major version. Use `RemoveBodyMiddleware` from
+     * @param bool $useRemoveBodyByStatusMiddleware Whether to remove the body of the response for specific response
+     * status codes. Deprecated and will be removed in the next major version. Use `RemoveBodyMiddleware` from
      * {@see https://github.com/yiisoft/http-middleware/} instead.
      * @param bool $useContentLengthMiddleware Whether to manage the `Content-Length` header to the response. Deprecated
      * and will be removed in the next major version. Use `ContentLengthMiddleware` from

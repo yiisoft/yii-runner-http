@@ -94,6 +94,17 @@ reverse and recursive merge events' configurations.
 
 `$bufferSize` — the size of the buffer in bytes to send the content of the message body (default, 8Mb).
 
+`$temporaryErrorHandler` — a temporary error handler that needed to handle the creation of configuration and container 
+instances.
+
+`$emitter` — an emitter to send the response.
+
+`$useRemoveBodyByStatusMiddleware` — whether to remove the body of the response for specific response status codes.
+
+`$useContentLengthMiddleware` — whether to manage the `Content-Length` header to the response.
+
+`$useHeadRequestMiddleware` — whether to remove the body of the response for HEAD requests.
+
 #### Immutable setters
 
 If the configuration instance settings differ from the default you can specify a customized configuration instance:
