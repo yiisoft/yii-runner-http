@@ -223,6 +223,63 @@ final class HttpApplicationRunnerTest extends TestCase
         );
     }
 
+    public function testContentLengthWithTransferEncoding(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'content-length-with-transfer-encoding',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            ['Transfer-Encoding' => ['chunked']],
+            $response->getHeaders(),
+        );
+    }
+
+    public function testDoNotModifyExistsContentLength(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'do-not-modify-exists-content-length',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            ['Content-Length' => ['100']],
+            $response->getHeaders(),
+        );
+    }
+
+    public function testDoNotAddContentMiddlewareWithContinueStatus(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'do-not-add-content-middleware-with-continue-status',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            [],
+            $response->getHeaders(),
+        );
+    }
+
     private function createContainer(bool $throwException = false): ContainerInterface
     {
         $containerConfig = ContainerConfig::create()

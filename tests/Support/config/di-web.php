@@ -47,22 +47,24 @@ return [
         'forceContentType()' => ['text/plain'],
     ],
 
+    'applicationMiddleware' => new class () implements MiddlewareInterface {
+        public function process(
+            ServerRequestInterface $request,
+            RequestHandlerInterface $handler
+        ): ResponseInterface {
+            return (new Response())->withBody((new StreamFactory())->createStream('OK'));
+        }
+    },
+
     Application::class => [
         '__construct()' => [
-            'dispatcher' => DynamicReference::to(static function (ContainerInterface $container) {
-                return $container
+            'dispatcher' => DynamicReference::to(
+                static fn(ContainerInterface $container) => $container
                     ->get(MiddlewareDispatcher::class)
                     ->withMiddlewares([
-                        static fn () => new class () implements MiddlewareInterface {
-                            public function process(
-                                ServerRequestInterface $request,
-                                RequestHandlerInterface $handler
-                            ): ResponseInterface {
-                                return (new Response())->withBody((new StreamFactory())->createStream('OK'));
-                            }
-                        },
-                    ]);
-            }),
+                        static fn(ContainerInterface $container) => $container->get('applicationMiddleware'),
+                    ]),
+            ),
             'fallbackHandler' => Reference::to(NotFoundHandler::class),
         ],
     ],
