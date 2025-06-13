@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
+use LogicException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -24,6 +25,7 @@ use Yiisoft\Http\Header;
 use Yiisoft\Http\Method;
 use Yiisoft\Http\Status;
 use Yiisoft\PsrEmitter\EmitterInterface;
+use Yiisoft\PsrEmitter\FakeEmitter;
 use Yiisoft\PsrEmitter\HeadersHaveBeenSentException as EmitterHeadersHaveBeenSentException;
 use Yiisoft\PsrEmitter\SapiEmitter;
 use Yiisoft\Yii\Http\Application;
@@ -40,6 +42,7 @@ use function microtime;
 final class HttpApplicationRunner extends ApplicationRunner
 {
     private readonly EmitterInterface $emitter;
+    private ?FakeEmitter $fakeEmitter = null;
 
     /**
      * @param string $rootPath The absolute path to the project root.
@@ -155,23 +158,28 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     public function run(): void
     {
-        $this->runInternal();
+        $this->runInternal($this->emitter);
     }
 
     /**
      * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
      * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
      */
-    public function runWithRequest(ServerRequestInterface $request): void
+    public function runWithoutEmit(ServerRequestInterface $request): ResponseInterface
     {
-        $this->runInternal($request);
+        $this->runInternal(
+            $this->fakeEmitter ??= new FakeEmitter(),
+            $request,
+        );
+        return $this->fakeEmitter->getLastResponse()
+            ?? throw new LogicException('No response was emitted.');
     }
 
     /**
      * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
      * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
      */
-    private function runInternal(?ServerRequestInterface $request = null): void
+    private function runInternal(EmitterInterface $emitter, ?ServerRequestInterface $request = null): void
     {
         $startTime = microtime(true);
 
@@ -204,7 +212,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         try {
             $application->start();
             $response = $application->handle($request);
-            $this->emit($request, $response);
+            $this->emit($emitter, $request, $response);
         } catch (Throwable $throwable) {
             $handler = new ThrowableHandler($throwable);
             /**
@@ -214,7 +222,7 @@ final class HttpApplicationRunner extends ApplicationRunner
             $response = $container
                 ->get(ErrorCatcher::class)
                 ->process($request, $handler);
-            $this->emit($request, $response);
+            $this->emit($emitter, $request, $response);
         } finally {
             $application->afterEmit($response ?? null);
             $application->shutdown();
@@ -233,13 +241,13 @@ final class HttpApplicationRunner extends ApplicationRunner
     /**
      * @throws HeadersHaveBeenSentException
      */
-    private function emit(ServerRequestInterface $request, ResponseInterface $response): void
+    private function emit(EmitterInterface $emitter, ServerRequestInterface $request, ResponseInterface $response): void
     {
         $response = $this->removeBodyByStatusMiddleware($response);
         $response = $this->contentLengthMiddleware($response);
         $response = $this->headRequestMiddleware($request, $response);
         try {
-            $this->emitter->emit($response);
+            $emitter->emit($response);
         } catch (EmitterHeadersHaveBeenSentException) {
             throw new HeadersHaveBeenSentException();
         }
