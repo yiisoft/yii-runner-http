@@ -281,17 +281,17 @@ final class HttpApplicationRunnerTest extends TestCase
         );
     }
 
-    public function testRunWithoutEmit(): void
+    public function testRunAndGetResponse(): void
     {
         $runner = new HttpApplicationRunner(__DIR__ . '/Support', false);
 
-        $response = $runner->runWithoutEmit();
+        $response = $runner->runAndGetResponse();
 
         assertSame(200, $response->getStatusCode());
         $this->expectOutputString('');
     }
 
-    public function testRunWithoutEmitWithRequest(): void
+    public function testRunAndGetResponseWithRequest(): void
     {
         $runner = new HttpApplicationRunner(
             rootPath: __DIR__ . '/Support',
@@ -299,7 +299,7 @@ final class HttpApplicationRunnerTest extends TestCase
         );
 
         $request = (new ServerRequest(headers: ['X-CONTENT' => ['Test content']]));
-        $response = $runner->runWithoutEmit($request);
+        $response = $runner->runAndGetResponse($request);
 
         assertSame(200, $response->getStatusCode());
         assertSame('Test content', $response->getBody()->getContents());
