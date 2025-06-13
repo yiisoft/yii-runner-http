@@ -67,7 +67,7 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param ErrorHandler|null $temporaryErrorHandler The temporary error handler instance that used to handle
      * the creation of configuration and container instances, then the error handler configured in your application
      * configuration will be used.
-     * @param EmitterInterface|null $emitter The emitter instance that used to send the response. By default, it uses
+     * @param EmitterInterface|null $emitter The emitter instance to send the response with. By default, it uses
      * {@see SapiEmitter}.
      * @param bool $useRemoveBodyByStatusMiddleware Whether to remove the body of the response for specific response
      * status codes. Deprecated and will be removed in the next major version. Use `RemoveBodyMiddleware` from
