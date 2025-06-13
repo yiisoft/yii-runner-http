@@ -57,4 +57,11 @@ return [
             ],
         ],
     ],
+    'run-without-emit-with-request' => [
+        'di-web' => [
+            '/' => [
+                'di-web-run-without-emit-with-request.php',
+            ],
+        ],
+    ],
 ];

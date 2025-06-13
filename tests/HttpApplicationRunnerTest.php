@@ -6,6 +6,7 @@ namespace Yiisoft\Yii\Runner\Http\Tests;
 
 use Exception;
 use HttpSoft\Message\ResponseFactory;
+use HttpSoft\Message\ServerRequest;
 use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
@@ -278,6 +279,31 @@ final class HttpApplicationRunnerTest extends TestCase
             [],
             $response->getHeaders(),
         );
+    }
+
+    public function testRunAndGetResponse(): void
+    {
+        $runner = new HttpApplicationRunner(__DIR__ . '/Support', false);
+
+        $response = $runner->runAndGetResponse();
+
+        assertSame(200, $response->getStatusCode());
+        $this->expectOutputString('');
+    }
+
+    public function testRunAndGetResponseWithRequest(): void
+    {
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'run-without-emit-with-request',
+        );
+
+        $request = (new ServerRequest(headers: ['X-CONTENT' => ['Test content']]));
+        $response = $runner->runAndGetResponse($request);
+
+        assertSame(200, $response->getStatusCode());
+        assertSame('Test content', $response->getBody()->getContents());
+        $this->expectOutputString('');
     }
 
     private function createContainer(bool $throwException = false): ContainerInterface
