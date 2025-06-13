@@ -7,7 +7,7 @@
 - New #92: Add `$emitter`, `$useRemoveBodyByStatusMiddleware`, `$useContentLengthMiddleware` and 
   `$useHeadRequestMiddleware` parameters to `HttpApplicationRunner` constructor (@vjik)
 - Bug #93: Don't remove `Content-Length` header if it is set and emit is called without body (@vjik)
-- New #90: Add `HttpApplicationRunner::runWithoutEmit()` method that returns response without emit (@vjik)
+- New #90: Add `HttpApplicationRunner::runAndGetResponse()` method that returns response without emit (@vjik)
 
 ## 3.1.0 February 21, 2025
 
