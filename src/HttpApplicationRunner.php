@@ -6,7 +6,6 @@ namespace Yiisoft\Yii\Runner\Http;
 
 use ErrorException;
 use Psr\Container\ContainerExceptionInterface;
-use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -41,9 +40,6 @@ use function microtime;
 final class HttpApplicationRunner extends ApplicationRunner
 {
     private readonly EmitterInterface $emitter;
-
-    private ?ServerRequestInterface $testRequest = null;
-    private ?ResponseInterface $testResponse = null;
 
     /**
      * @param string $rootPath The absolute path to the project root.
@@ -154,12 +150,28 @@ final class HttpApplicationRunner extends ApplicationRunner
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
      * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
      */
     public function run(): void
+    {
+        $this->runInternal();
+    }
+
+    /**
+     * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
+     * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
+     */
+    public function runWithRequest(ServerRequestInterface $request): void
+    {
+        $this->runInternal($request);
+    }
+
+    /**
+     * @throws CircularReferenceException|ErrorException|HeadersHaveBeenSentException|InvalidConfigException
+     * @throws ContainerExceptionInterface|NotFoundException|NotFoundExceptionInterface|NotInstantiableException
+     */
+    private function runInternal(?ServerRequestInterface $request = null): void
     {
         $startTime = microtime(true);
 
@@ -182,7 +194,13 @@ final class HttpApplicationRunner extends ApplicationRunner
         /** @var Application $application */
         $application = $container->get(Application::class);
 
-        $request = $this->createRequest($container)->withAttribute('applicationStartTime', $startTime);
+        if ($request === null) {
+            /** @var RequestFactory $requestFactory */
+            $requestFactory = $container->get(RequestFactory::class);
+            $request = $requestFactory->create();
+        }
+
+        $request = $request->withAttribute('applicationStartTime', $startTime);
         try {
             $application->start();
             $response = $application->handle($request);
@@ -203,27 +221,6 @@ final class HttpApplicationRunner extends ApplicationRunner
         }
     }
 
-    public function testRun(ServerRequestInterface $request): ResponseInterface
-    {
-        $this->testRequest = $request;
-        $this->run();
-        /** @var ResponseInterface After `run()` property `$testResponse` is not nullable. */
-        return $this->testResponse;
-    }
-
-    private function createRequest(ContainerInterface $container): ServerRequestInterface
-    {
-        if ($this->testRequest !== null) {
-            return $this->testRequest;
-        }
-
-        /**
-         * @var RequestFactory $requestFactory
-         */
-        $requestFactory = $container->get(RequestFactory::class);
-        return $requestFactory->create();
-    }
-
     private function createTemporaryErrorHandler(): ErrorHandler
     {
         return $this->temporaryErrorHandler ??
@@ -241,12 +238,6 @@ final class HttpApplicationRunner extends ApplicationRunner
         $response = $this->removeBodyByStatusMiddleware($response);
         $response = $this->contentLengthMiddleware($response);
         $response = $this->headRequestMiddleware($request, $response);
-
-        if ($this->testRequest !== null) {
-            $this->testResponse = $response;
-            return;
-        }
-
         try {
             $this->emitter->emit($response);
         } catch (EmitterHeadersHaveBeenSentException) {
