@@ -38,6 +38,7 @@
         "yiisoft/error-handler": "^4.0",
         "yiisoft/friendly-exception": "^1.1",
         "yiisoft/http": "^1.2",
+        "yiisoft/psr-emitter": "^1.0",
         "yiisoft/yii-http": "^1.0",
         "yiisoft/yii-runner": "^2.2"
     },
@@ -45,11 +46,10 @@
         "bamarni/composer-bin-plugin": "^1.8.2",
         "httpsoft/http-message": "^1.1.6",
         "phpunit/phpunit": "^10.5.46",
-        "rector/rector": "^2.0.14",
+        "rector/rector": "^2.0.17",
         "roave/infection-static-analysis-plugin": "^1.35",
         "spatie/phpunit-watcher": "^1.24",
-        "vimeo/psalm": "^5.26.1 || ^6.10.2",
-        "xepozz/internal-mocker": "^1.4.1",
+        "vimeo/psalm": "^5.26.1 || ^6.12",
         "yiisoft/middleware-dispatcher": "^5.2",
         "yiisoft/test-support": "^3.0.2"
     },
@@ -83,7 +83,7 @@
         }
     },
     "scripts": {
-        "test": "php -ddisable_functions=flush,header,http_response_code,headers_sent,header_remove ./vendor/bin/phpunit",
+        "test": "./vendor/bin/phpunit",
         "test-watch": "phpunit-watcher watch"
     }
 }
