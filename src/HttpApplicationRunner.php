@@ -10,6 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
@@ -20,12 +21,18 @@ use Yiisoft\Di\NotFoundException;
 use Yiisoft\ErrorHandler\ErrorHandler;
 use Yiisoft\ErrorHandler\Middleware\ErrorCatcher;
 use Yiisoft\ErrorHandler\Renderer\HtmlRenderer;
+use Yiisoft\Http\Header;
 use Yiisoft\Http\Method;
+use Yiisoft\Http\Status;
+use Yiisoft\PsrEmitter\EmitterInterface;
+use Yiisoft\PsrEmitter\HeadersHaveBeenSentException as EmitterHeadersHaveBeenSentException;
+use Yiisoft\PsrEmitter\SapiEmitter;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
+use function in_array;
 use function microtime;
 
 /**
@@ -33,6 +40,8 @@ use function microtime;
  */
 final class HttpApplicationRunner extends ApplicationRunner
 {
+    private readonly EmitterInterface $emitter;
+
     private ?ServerRequestInterface $testRequest = null;
     private ?ResponseInterface $testResponse = null;
 
@@ -58,9 +67,21 @@ final class HttpApplicationRunner extends ApplicationRunner
      * @param string $configMergePlanFile The relative path from {@see $configDirectory} to merge plan.
      * @param LoggerInterface|null $logger (deprecated) The logger to collect errors while container is building.
      * @param int|null $bufferSize The size of the buffer in bytes to send the content of the message body.
+     * Deprecated and will be removed in the next major version. Use custom emitter instead.
      * @param ErrorHandler|null $temporaryErrorHandler The temporary error handler instance that used to handle
      * the creation of configuration and container instances, then the error handler configured in your application
      * configuration will be used.
+     * @param EmitterInterface|null $emitter The emitter instance to send the response with. By default, it uses
+     * {@see SapiEmitter}.
+     * @param bool $useRemoveBodyByStatusMiddleware Whether to remove the body of the response for specific response
+     * status codes. Deprecated and will be removed in the next major version. Use `RemoveBodyMiddleware` from
+     * {@see https://github.com/yiisoft/http-middleware/} instead.
+     * @param bool $useContentLengthMiddleware Whether to manage the `Content-Length` header to the response. Deprecated
+     * and will be removed in the next major version. Use `ContentLengthMiddleware` from
+     * {@see https://github.com/yiisoft/http-middleware/} instead.
+     * @param bool $useHeadRequestMiddleware Whether to remove the body of the response for HEAD requests. Deprecated
+     * and will be removed in the next major version. Use `HeadRequestMiddleware` from
+     * {@see https://github.com/yiisoft/http-middleware/} instead.
      *
      * @psalm-param list<string> $nestedParamsGroups
      * @psalm-param list<string> $nestedEventsGroups
@@ -85,9 +106,15 @@ final class HttpApplicationRunner extends ApplicationRunner
         string $vendorDirectory = 'vendor',
         string $configMergePlanFile = '.merge-plan.php',
         private readonly ?LoggerInterface $logger = null,
-        private readonly ?int $bufferSize = null,
+        ?int $bufferSize = null,
         private ?ErrorHandler $temporaryErrorHandler = null,
+        ?EmitterInterface $emitter = null,
+        private readonly bool $useRemoveBodyByStatusMiddleware = true,
+        private readonly bool $useContentLengthMiddleware = true,
+        private readonly bool $useHeadRequestMiddleware = true,
     ) {
+        $this->emitter = $emitter ?? new SapiEmitter($bufferSize);
+
         parent::__construct(
             $rootPath,
             $debug,
@@ -211,12 +238,20 @@ final class HttpApplicationRunner extends ApplicationRunner
      */
     private function emit(ServerRequestInterface $request, ResponseInterface $response): void
     {
+        $response = $this->removeBodyByStatusMiddleware($response);
+        $response = $this->contentLengthMiddleware($response);
+        $response = $this->headRequestMiddleware($request, $response);
+
         if ($this->testRequest !== null) {
             $this->testResponse = $response;
             return;
         }
 
-        (new SapiEmitter($this->bufferSize))->emit($response, $request->getMethod() === Method::HEAD);
+        try {
+            $this->emitter->emit($response);
+        } catch (EmitterHeadersHaveBeenSentException) {
+            throw new HeadersHaveBeenSentException();
+        }
     }
 
     /**
@@ -231,5 +266,94 @@ final class HttpApplicationRunner extends ApplicationRunner
         }
 
         $registered->register();
+    }
+
+    private function removeBodyByStatusMiddleware(ResponseInterface $response): ResponseInterface
+    {
+        if (!$this->useRemoveBodyByStatusMiddleware) {
+            return $response;
+        }
+
+        if (!in_array(
+            $response->getStatusCode(),
+            [
+                Status::CONTINUE,
+                Status::SWITCHING_PROTOCOLS,
+                Status::PROCESSING,
+                Status::NO_CONTENT,
+                Status::RESET_CONTENT,
+                Status::NOT_MODIFIED,
+            ],
+            true
+        )) {
+            return $response;
+        }
+
+        /** @var StreamFactoryInterface $streamFactory */
+        $streamFactory = $this->getContainer()->get(StreamFactoryInterface::class);
+        $emptyBody = $streamFactory->createStream();
+
+        return $response->withBody($emptyBody);
+    }
+
+    private function contentLengthMiddleware(ResponseInterface $response): ResponseInterface
+    {
+        if (!$this->useContentLengthMiddleware) {
+            return $response;
+        }
+
+        if ($response->hasHeader(Header::TRANSFER_ENCODING)) {
+            return $response->withoutHeader(Header::CONTENT_LENGTH);
+        }
+
+        if ($response->hasHeader('Content-Length')) {
+            return $response;
+        }
+
+        if (in_array(
+            $response->getStatusCode(),
+            [
+                Status::CONTINUE,
+                Status::SWITCHING_PROTOCOLS,
+                Status::PROCESSING,
+                Status::NO_CONTENT,
+                Status::RESET_CONTENT,
+                Status::NOT_MODIFIED,
+            ],
+            true
+        )) {
+            return $response;
+        }
+
+        $body = $response->getBody();
+        if (!$body->isReadable()) {
+            return $response;
+        }
+
+        $contentLength = $response->getBody()->getSize();
+        if ($contentLength === null || $contentLength === 0) {
+            return $response;
+        }
+
+        return $response->withHeader(Header::CONTENT_LENGTH, (string) $contentLength);
+    }
+
+    private function headRequestMiddleware(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+    ): ResponseInterface {
+        if (!$this->useHeadRequestMiddleware) {
+            return $response;
+        }
+
+        if ($request->getMethod() !== Method::HEAD) {
+            return $response;
+        }
+
+        /** @var StreamFactoryInterface $streamFactory */
+        $streamFactory = $this->getContainer()->get(StreamFactoryInterface::class);
+        $emptyBody = $streamFactory->createStream();
+
+        return $response->withBody($emptyBody);
     }
 }

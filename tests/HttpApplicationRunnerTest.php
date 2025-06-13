@@ -10,6 +10,7 @@ use HttpSoft\Message\ServerRequestFactory;
 use HttpSoft\Message\StreamFactory;
 use HttpSoft\Message\UploadedFileFactory;
 use HttpSoft\Message\UriFactory;
+use PHPUnit\Framework\Attributes\TestWith;
 use PHPUnit\Framework\TestCase;
 use Psr\Container\ContainerInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -23,6 +24,7 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
+use Throwable;
 use Yiisoft\Config\Config;
 use Yiisoft\Config\ConfigPaths;
 use Yiisoft\Definitions\DynamicReference;
@@ -37,6 +39,7 @@ use Yiisoft\ErrorHandler\ThrowableResponseFactoryInterface;
 use Yiisoft\Middleware\Dispatcher\Event\AfterMiddleware;
 use Yiisoft\Middleware\Dispatcher\Event\BeforeMiddleware;
 use Yiisoft\Middleware\Dispatcher\MiddlewareDispatcher;
+use Yiisoft\PsrEmitter\FakeEmitter;
 use Yiisoft\Test\Support\EventDispatcher\SimpleEventDispatcher;
 use Yiisoft\Test\Support\Log\SimpleLogger;
 use Yiisoft\Yii\Http\Application;
@@ -46,7 +49,12 @@ use Yiisoft\Yii\Http\Event\ApplicationShutdown;
 use Yiisoft\Yii\Http\Event\ApplicationStartup;
 use Yiisoft\Yii\Http\Event\BeforeRequest;
 use Yiisoft\Yii\Http\Handler\NotFoundHandler;
+use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 use Yiisoft\Yii\Runner\Http\HttpApplicationRunner;
+use Yiisoft\Yii\Runner\Http\Tests\Support\EmitterWithHeadersHaveBeenSentException;
+
+use function PHPUnit\Framework\assertInstanceOf;
+use function PHPUnit\Framework\assertSame;
 
 final class HttpApplicationRunnerTest extends TestCase
 {
@@ -146,6 +154,130 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->assertNotSame($this->runner, $this->runner->withConfig($this->createConfig()));
         $this->assertNotSame($this->runner, $this->runner->withContainer($this->createContainer()));
         $this->assertNotSame($this->runner, $this->runner->withTemporaryErrorHandler($this->createErrorHandler()));
+    }
+
+    public function testHeadersHaveBeenSentException(): void
+    {
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: new EmitterWithHeadersHaveBeenSentException(),
+        );
+
+        $exception = null;
+        try {
+            $runner->run();
+        } catch (Throwable $exception) {
+        }
+
+        assertInstanceOf(HeadersHaveBeenSentException::class, $exception);
+        assertSame('HTTP headers have been sent.', $exception->getName());
+        assertSame(
+            <<<SOLUTION
+            Headers already sent in  on line 0
+            Emitter can't send headers once the headers block has already been sent.
+            SOLUTION,
+            $exception->getSolution(),
+        );
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testHeadRequest(bool $useHeadRequestMiddleware): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: $emitter,
+            useHeadRequestMiddleware: $useHeadRequestMiddleware,
+        );
+
+        $_SERVER['REQUEST_METHOD'] = 'HEAD';
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            $useHeadRequestMiddleware ? '' : 'OK',
+            $response->getBody()->getContents()
+        );
+    }
+
+    #[TestWith([true])]
+    #[TestWith([false])]
+    public function testContentLength(bool $useContentLengthMiddleware): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            emitter: $emitter,
+            useContentLengthMiddleware: $useContentLengthMiddleware,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            $useContentLengthMiddleware ? ['Content-Length' => ['2']] : [],
+            $response->getHeaders(),
+        );
+    }
+
+    public function testContentLengthWithTransferEncoding(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'content-length-with-transfer-encoding',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            ['Transfer-Encoding' => ['chunked']],
+            $response->getHeaders(),
+        );
+    }
+
+    public function testDoNotModifyExistsContentLength(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'do-not-modify-exists-content-length',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            ['Content-Length' => ['100']],
+            $response->getHeaders(),
+        );
+    }
+
+    public function testDoNotAddContentMiddlewareWithContinueStatus(): void
+    {
+        $emitter = new FakeEmitter();
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'do-not-add-content-middleware-with-continue-status',
+            emitter: $emitter,
+        );
+
+        $runner->run();
+
+        $response = $emitter->getLastResponse();
+        assertInstanceOf(ResponseInterface::class, $response);
+        assertSame(
+            [],
+            $response->getHeaders(),
+        );
     }
 
     private function createContainer(bool $throwException = false): ContainerInterface
