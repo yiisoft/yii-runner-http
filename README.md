@@ -94,7 +94,7 @@ reverse and recursive merge events' configurations.
 
 `$bufferSize` — the size of the buffer in bytes to send the content of the message body (default, 8Mb).
 
-`$temporaryErrorHandler` — a temporary error handler that needed to handle the creation of configuration and container 
+`$temporaryErrorHandler` — a temporary error handler that is needed to handle creating of configuration and container 
 instances.
 
 `$emitter` — an emitter to send the response.
