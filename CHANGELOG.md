@@ -1,13 +1,13 @@
 # Yii Runner HTTP Change Log
 
-## 3.1.1 under development
+## 3.2.0 June 14, 2025
 
-- Enh #91: Minor refactor internal class `RequestFactory`: explicitly mark read-only properties and add type to
-  parameter of `create()` method (@vjik)
+- New #90: Add `HttpApplicationRunner::runAndGetResponse()` method that returns response without emit (@vjik)
 - New #92: Add `$emitter`, `$useRemoveBodyByStatusMiddleware`, `$useContentLengthMiddleware` and 
   `$useHeadRequestMiddleware` parameters to `HttpApplicationRunner` constructor (@vjik)
+- Enh #91: Minor refactor internal class `RequestFactory`: explicitly mark read-only properties and add type to
+  parameter of `create()` method (@vjik)
 - Bug #93: Don't remove `Content-Length` header if it is set and emit is called without body (@vjik)
-- New #90: Add `HttpApplicationRunner::runAndGetResponse()` method that returns response without emit (@vjik)
 
 ## 3.1.0 February 21, 2025
 
