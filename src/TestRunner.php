@@ -8,7 +8,6 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Log\LoggerInterface;
 use Yiisoft\ErrorHandler\ErrorHandler;
-use Yiisoft\PsrEmitter\EmitterInterface;
 use Yiisoft\PsrEmitter\FakeEmitter;
 use Yiisoft\Yii\Runner\Http\ApplicationRequestFactory\MutableApplicationRequestFactory;
 
@@ -79,5 +78,4 @@ final class TestRunner
         return $this->fakeEmitter->getLastResponse()
             ?? throw new LogicException('No response was emitted.');
     }
-
 }
