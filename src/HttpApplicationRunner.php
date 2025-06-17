@@ -31,6 +31,8 @@ use Yiisoft\PsrEmitter\SapiEmitter;
 use Yiisoft\Yii\Http\Application;
 use Yiisoft\Yii\Http\Handler\ThrowableHandler;
 use Yiisoft\Yii\Runner\ApplicationRunner;
+use Yiisoft\Yii\Runner\Http\ApplicationRequestFactory\ApplicationRequestFactoryInterface;
+use Yiisoft\Yii\Runner\Http\ApplicationRequestFactory\InternalApplicationRequestFactory;
 use Yiisoft\Yii\Runner\Http\Exception\HeadersHaveBeenSentException;
 
 use function in_array;
@@ -111,6 +113,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         private readonly bool $useRemoveBodyByStatusMiddleware = true,
         private readonly bool $useContentLengthMiddleware = true,
         private readonly bool $useHeadRequestMiddleware = true,
+        private readonly ApplicationRequestFactoryInterface $requestFactory = new InternalApplicationRequestFactory(),
     ) {
         $this->emitter = $emitter ?? new SapiEmitter($bufferSize);
 
@@ -207,12 +210,7 @@ final class HttpApplicationRunner extends ApplicationRunner
         /** @var Application $application */
         $application = $container->get(Application::class);
 
-        if ($request === null) {
-            /** @var RequestFactory $requestFactory */
-            $requestFactory = $container->get(RequestFactory::class);
-            $request = $requestFactory->create();
-        }
-
+        $request ??= $this->requestFactory->create($container);
         $request = $request->withAttribute('applicationStartTime', $startTime);
         try {
             $application->start();
