@@ -1,6 +1,6 @@
 # Yii Runner HTTP Change Log
 
-## 3.2.1 under development
+## 3.2.1 December 20, 2025
 
 - Enh #98: Add PHP 8.5 support (@vjik)
 
