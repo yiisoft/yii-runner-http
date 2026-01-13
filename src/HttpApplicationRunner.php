@@ -9,6 +9,7 @@ use LogicException;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\NotFoundExceptionInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamFactoryInterface;
 use Psr\Log\LoggerInterface;
@@ -349,15 +350,35 @@ final class HttpApplicationRunner extends ApplicationRunner
         if (!$this->useHeadRequestMiddleware) {
             return $response;
         }
+        $emptyBodyStatusCode = in_array(
+            $response->getStatusCode(),
+            [
+                Status::CONTINUE,
+                Status::SWITCHING_PROTOCOLS,
+                Status::PROCESSING,
+                Status::NO_CONTENT,
+                Status::RESET_CONTENT,
+                Status::NOT_MODIFIED,
+            ],
+            true
+        );
 
-        if ($request->getMethod() !== Method::HEAD) {
+        if ($request->getMethod() !== Method::HEAD && !$emptyBodyStatusCode) {
             return $response;
         }
 
-        /** @var StreamFactoryInterface $streamFactory */
-        $streamFactory = $this->getContainer()->get(StreamFactoryInterface::class);
-        $emptyBody = $streamFactory->createStream();
+        if ($emptyBodyStatusCode) {
+            $response = $response->withoutHeader(Header::CONTENT_LENGTH);
+        }
 
-        return $response->withBody($emptyBody);
+        $requestFactory = $this->getContainer()->get(ResponseFactoryInterface::class);
+        $newResponse = $requestFactory->createResponse($response->getStatusCode(), $response->getReasonPhrase())
+                ->withProtocolVersion($response->getProtocolVersion());
+
+        foreach ($response->getHeaders() as $name => $values) {
+            $newResponse = $newResponse->withHeader($name, $values);
+        }
+
+        return $newResponse;
     }
 }
