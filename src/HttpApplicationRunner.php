@@ -215,8 +215,8 @@ final class HttpApplicationRunner extends ApplicationRunner
 
         $request = $request->withAttribute('applicationStartTime', $startTime);
         try {
-            $application->start();
             try {
+                $application->start();
                 $response = $application->handle($request);
             } catch (Throwable $throwable) {
                 $handler = new ThrowableHandler($throwable);
