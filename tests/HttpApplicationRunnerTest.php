@@ -159,10 +159,10 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testHeadersHaveBeenSentException(): void
     {
-        $runner = new HttpApplicationRunner(
+        $runner = (new HttpApplicationRunner(
             rootPath: __DIR__ . '/Support',
             emitter: new EmitterWithHeadersHaveBeenSentException(),
-        );
+        ))->withContainer($this->createContainer(false, true));
 
         $exception = null;
         try {
@@ -179,6 +179,16 @@ final class HttpApplicationRunnerTest extends TestCase
             SOLUTION,
             $exception->getSolution(),
         );
+    }
+
+    public function testRunRethrowsWhenErrorResponseCreationFails(): void
+    {
+        $runner = $this->runner->withContainer($this->createContainer(true, true));
+
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Failure while creating error response');
+
+        $runner->run();
     }
 
     #[TestWith([true])]
@@ -306,10 +316,13 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->expectOutputString('');
     }
 
-    private function createContainer(bool $throwException = false): ContainerInterface
+    private function createContainer(
+        bool $throwException = false,
+        bool $throwOnErrorResponseCreation = false,
+    ): ContainerInterface
     {
         $containerConfig = ContainerConfig::create()
-            ->withDefinitions($this->createDefinitions($throwException));
+            ->withDefinitions($this->createDefinitions($throwException, $throwOnErrorResponseCreation));
         return new Container($containerConfig);
     }
 
@@ -318,7 +331,7 @@ final class HttpApplicationRunnerTest extends TestCase
         return new Config(new ConfigPaths(__DIR__ . '/Support', 'config'), paramsGroup: 'params-web');
     }
 
-    private function createDefinitions(bool $throwException): array
+    private function createDefinitions(bool $throwException, bool $throwOnErrorResponseCreation): array
     {
         return [
             EventDispatcherInterface::class => SimpleEventDispatcher::class,
@@ -330,10 +343,19 @@ final class HttpApplicationRunnerTest extends TestCase
             UriFactoryInterface::class => UriFactory::class,
             UploadedFileFactoryInterface::class => UploadedFileFactory::class,
 
-            ThrowableResponseFactoryInterface::class => [
-                'class' => ThrowableResponseFactory::class,
-                'forceContentType()' => ['text/plain'],
-            ],
+            ThrowableResponseFactoryInterface::class => $throwOnErrorResponseCreation
+                ? static fn() => new class () implements ThrowableResponseFactoryInterface {
+                    public function create(
+                        Throwable $throwable,
+                        ServerRequestInterface $request
+                    ): ResponseInterface {
+                        throw new Exception('Failure while creating error response', previous: $throwable);
+                    }
+                }
+                : [
+                    'class' => ThrowableResponseFactory::class,
+                    'forceContentType()' => ['text/plain'],
+                ],
 
             Application::class => [
                 '__construct()' => [
