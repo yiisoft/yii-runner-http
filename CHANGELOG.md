@@ -2,7 +2,7 @@
 
 ## 3.2.2 under development
 
-- Bug: Don't route emitter failures through `ErrorCatcher` in `HttpApplicationRunner` (@samdark)
+- Bug #100: Don't route emitter failures through `ErrorCatcher` in `HttpApplicationRunner` (@samdark)
 
 ## 3.2.1 December 20, 2025
 
