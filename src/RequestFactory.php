@@ -16,7 +16,6 @@ use function array_key_exists;
 use function explode;
 use function fopen;
 use function function_exists;
-use function getallheaders;
 use function is_array;
 use function preg_match;
 use function str_replace;
@@ -153,7 +152,7 @@ final class RequestFactory
     {
         /** @psalm-var array<string, string> $_SERVER */
 
-        if (function_exists('getallheaders') && ($headers = getallheaders()) !== false) {
+        if (($headers = $this->getAllHeaders()) !== false) {
             /** @psalm-var array<string, string> $headers */
             return $headers;
         }
@@ -180,6 +179,22 @@ final class RequestFactory
         }
 
         return $headers;
+    }
+
+    /**
+     * @psalm-return array<string, string>|false
+     */
+    private function getAllHeaders(): array|false
+    {
+        if (function_exists(__NAMESPACE__ . '\getallheaders')) {
+            return getallheaders();
+        }
+
+        if (function_exists('getallheaders')) {
+            return \getallheaders();
+        }
+
+        return false;
     }
 
     private function normalizeHeaderName(string $name): string

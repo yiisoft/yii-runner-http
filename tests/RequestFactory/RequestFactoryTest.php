@@ -26,16 +26,7 @@ final class RequestFactoryTest extends TestCase
 
     public static function setUpBeforeClass(): void
     {
-        if (!function_exists('getallheaders')) {
-            eval(<<<'PHP'
-namespace {
-    function getallheaders(): array|false
-    {
-        return \Yiisoft\Yii\Runner\Http\Tests\RequestFactory\RequestFactoryTest::getAllHeadersStubResult();
-    }
-}
-PHP);
-        }
+        require_once __DIR__ . '/getallheaders_stub.php';
     }
 
     public static function getAllHeadersStubResult(): array|false
