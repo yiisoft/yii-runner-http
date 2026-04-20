@@ -57,7 +57,7 @@ final class RequestFactory
 
         // Add headers
         foreach ($this->getHeaders() as $name => $value) {
-            if ($name === 'Host' && $request->hasHeader('Host')) {
+            if (strtolower($name) === 'host' && $request->hasHeader('Host')) {
                 continue;
             }
             $request = $request->withAddedHeader($name, $value);

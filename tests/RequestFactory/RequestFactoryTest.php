@@ -18,15 +18,37 @@ use function fopen;
 
 final class RequestFactoryTest extends TestCase
 {
+    public static array|false $getAllHeadersResult = false;
+
     private array $globalServer = [];
     private array $globalPost = [];
     private array $globalFiles = [];
+
+    public static function setUpBeforeClass(): void
+    {
+        if (!function_exists('getallheaders')) {
+            eval(<<<'PHP'
+namespace {
+    function getallheaders(): array|false
+    {
+        return \Yiisoft\Yii\Runner\Http\Tests\RequestFactory\RequestFactoryTest::getAllHeadersStubResult();
+    }
+}
+PHP);
+        }
+    }
+
+    public static function getAllHeadersStubResult(): array|false
+    {
+        return self::$getAllHeadersResult;
+    }
 
     protected function setUp(): void
     {
         $this->globalServer = $_SERVER;
         $this->globalPost = $_POST;
         $this->globalFiles = $_FILES;
+        self::$getAllHeadersResult = false;
     }
 
     protected function tearDown(): void
@@ -91,6 +113,23 @@ final class RequestFactoryTest extends TestCase
         $request = $this->createRequestFactory()->create();
 
         $this->assertSame($expected, $request->getHeaders());
+    }
+
+    public function testHeadersFromGetAllHeadersDoNotDuplicateHost(): void
+    {
+        self::$getAllHeadersResult = [
+            'host' => 'example.com',
+            'X-Test' => 'header-value',
+        ];
+        $_SERVER = [
+            'HTTP_HOST' => 'example.com',
+            'REQUEST_METHOD' => 'GET',
+        ];
+
+        $request = $this->createRequestFactory()->create();
+
+        $this->assertSame(['example.com'], $request->getHeader('Host'));
+        $this->assertSame(['header-value'], $request->getHeader('X-Test'));
     }
 
     public function testInvalidMethodException(): void
