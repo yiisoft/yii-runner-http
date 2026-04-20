@@ -319,8 +319,7 @@ final class HttpApplicationRunnerTest extends TestCase
     private function createContainer(
         bool $throwException = false,
         bool $throwOnErrorResponseCreation = false,
-    ): ContainerInterface
-    {
+    ): ContainerInterface {
         $containerConfig = ContainerConfig::create()
             ->withDefinitions($this->createDefinitions($throwException, $throwOnErrorResponseCreation));
         return new Container($containerConfig);
