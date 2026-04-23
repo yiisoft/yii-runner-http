@@ -159,10 +159,10 @@ final class HttpApplicationRunnerTest extends TestCase
 
     public function testHeadersHaveBeenSentException(): void
     {
-        $runner = (new HttpApplicationRunner(
+        $runner = new HttpApplicationRunner(
             rootPath: __DIR__ . '/Support',
             emitter: new EmitterWithHeadersHaveBeenSentException(),
-        ))->withContainer($this->createContainer(false, true));
+        );
 
         $exception = null;
         try {
