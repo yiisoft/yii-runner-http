@@ -319,8 +319,7 @@ final class HttpApplicationRunnerTest extends TestCase
     private function createContainer(
         bool $throwException = false,
         bool $throwOnErrorResponseCreation = false,
-    ): ContainerInterface
-    {
+    ): ContainerInterface {
         $containerConfig = ContainerConfig::create()
             ->withDefinitions($this->createDefinitions($throwException, $throwOnErrorResponseCreation));
         return new Container($containerConfig);
@@ -348,8 +347,7 @@ final class HttpApplicationRunnerTest extends TestCase
                     public function create(
                         Throwable $throwable,
                         ServerRequestInterface $request
-                    ): ResponseInterface
-                    {
+                    ): ResponseInterface {
                         throw new Exception('Failure while creating error response', previous: $throwable);
                     }
                 }
