@@ -215,18 +215,19 @@ final class HttpApplicationRunner extends ApplicationRunner
 
         $request = $request->withAttribute('applicationStartTime', $startTime);
         try {
-            $application->start();
-            $response = $application->handle($request);
-            $this->emit($emitter, $request, $response);
-        } catch (Throwable $throwable) {
-            $handler = new ThrowableHandler($throwable);
-            /**
-             * @var ResponseInterface
-             * @psalm-suppress MixedMethodCall
-             */
-            $response = $container
-                ->get(ErrorCatcher::class)
-                ->process($request, $handler);
+            try {
+                $application->start();
+                $response = $application->handle($request);
+            } catch (Throwable $throwable) {
+                $handler = new ThrowableHandler($throwable);
+                /**
+                 * @var ResponseInterface
+                 * @psalm-suppress MixedMethodCall
+                 */
+                $response = $container
+                    ->get(ErrorCatcher::class)
+                    ->process($request, $handler);
+            }
             $this->emit($emitter, $request, $response);
         } finally {
             $application->afterEmit($response ?? null);
