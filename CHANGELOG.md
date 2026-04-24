@@ -2,6 +2,7 @@
 
 ## 3.2.2 under development
 
+- Bug #101: Don't duplicate `Host` header values when `getallheaders()` returns non-canonical casing (@samdark)
 - Bug #100: Don't route emitter failures through `ErrorCatcher` in `HttpApplicationRunner` (@samdark)
 
 ## 3.2.1 December 20, 2025
