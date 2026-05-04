@@ -3,6 +3,7 @@
 ## 3.2.2 under development
 
 - Bug #100: Don't route emitter failures through `ErrorCatcher` in `HttpApplicationRunner` (@samdark)
+- Enh #104: Apply PHP CS Fixer (@Tigrov)
 
 ## 3.2.1 December 20, 2025
 
