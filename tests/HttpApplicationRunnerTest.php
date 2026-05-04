@@ -209,7 +209,7 @@ final class HttpApplicationRunnerTest extends TestCase
         assertInstanceOf(ResponseInterface::class, $response);
         assertSame(
             $useHeadRequestMiddleware ? '' : 'OK',
-            $response->getBody()->getContents()
+            $response->getBody()->getContents(),
         );
     }
 
@@ -343,10 +343,10 @@ final class HttpApplicationRunnerTest extends TestCase
             UploadedFileFactoryInterface::class => UploadedFileFactory::class,
 
             ThrowableResponseFactoryInterface::class => $throwOnErrorResponseCreation
-                ? static fn() => new class () implements ThrowableResponseFactoryInterface {
+                ? static fn() => new class implements ThrowableResponseFactoryInterface {
                     public function create(
                         Throwable $throwable,
-                        ServerRequestInterface $request
+                        ServerRequestInterface $request,
                     ): ResponseInterface {
                         throw new Exception('Failure while creating error response', previous: $throwable);
                     }
@@ -364,13 +364,11 @@ final class HttpApplicationRunnerTest extends TestCase
                                 ->get(MiddlewareDispatcher::class)
                                 ->withMiddlewares([
                                     static fn() => new class ($throwException) implements MiddlewareInterface {
-                                        public function __construct(private bool $throwException)
-                                        {
-                                        }
+                                        public function __construct(private bool $throwException) {}
 
                                         public function process(
                                             ServerRequestInterface $request,
-                                            RequestHandlerInterface $handler
+                                            RequestHandlerInterface $handler,
                                         ): ResponseInterface {
                                             if ($this->throwException) {
                                                 throw new Exception('Failure');

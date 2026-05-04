@@ -237,8 +237,8 @@ final class HttpApplicationRunner extends ApplicationRunner
 
     private function createTemporaryErrorHandler(): ErrorHandler
     {
-        return $this->temporaryErrorHandler ??
-            new ErrorHandler(
+        return $this->temporaryErrorHandler
+            ?? new ErrorHandler(
                 $this->logger ?? new NullLogger(),
                 new HtmlRenderer(),
             );
@@ -289,7 +289,7 @@ final class HttpApplicationRunner extends ApplicationRunner
                 Status::RESET_CONTENT,
                 Status::NOT_MODIFIED,
             ],
-            true
+            true,
         )) {
             return $response;
         }
@@ -325,7 +325,7 @@ final class HttpApplicationRunner extends ApplicationRunner
                 Status::RESET_CONTENT,
                 Status::NOT_MODIFIED,
             ],
-            true
+            true,
         )) {
             return $response;
         }

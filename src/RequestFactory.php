@@ -36,8 +36,7 @@ final class RequestFactory
         private readonly UriFactoryInterface $uriFactory,
         private readonly UploadedFileFactoryInterface $uploadedFileFactory,
         private readonly StreamFactoryInterface $streamFactory,
-    ) {
-    }
+    ) {}
 
     /**
      * Creates an instance of a server request from custom parameters.

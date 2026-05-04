@@ -10,10 +10,10 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 return [
-    'applicationMiddleware' => new class () implements MiddlewareInterface {
+    'applicationMiddleware' => new class implements MiddlewareInterface {
         public function process(
             ServerRequestInterface $request,
-            RequestHandlerInterface $handler
+            RequestHandlerInterface $handler,
         ): ResponseInterface {
             return (new Response())
                 ->withBody((new StreamFactory())->createStream($request->getHeaderLine('X-CONTENT')));

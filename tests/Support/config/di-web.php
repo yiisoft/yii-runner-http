@@ -47,10 +47,10 @@ return [
         'forceContentType()' => ['text/plain'],
     ],
 
-    'applicationMiddleware' => new class () implements MiddlewareInterface {
+    'applicationMiddleware' => new class implements MiddlewareInterface {
         public function process(
             ServerRequestInterface $request,
-            RequestHandlerInterface $handler
+            RequestHandlerInterface $handler,
         ): ResponseInterface {
             return (new Response())->withBody((new StreamFactory())->createStream('OK'));
         }
