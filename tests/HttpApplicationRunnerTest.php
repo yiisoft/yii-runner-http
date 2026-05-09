@@ -316,6 +316,19 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->expectOutputString('');
     }
 
+    public function testRunRethrowsWhenEmitterFails(): void
+    {
+        $runner = new HttpApplicationRunner(
+            rootPath: __DIR__ . '/Support',
+            environment: 'view-response-with-error',
+            debug: true,
+        );
+
+        $runner->run();
+
+        $this->expectOutputRegex('/^Exception with message "Failure while creating response stream"/');
+    }
+
     private function createContainer(
         bool $throwException = false,
         bool $throwOnErrorResponseCreation = false,
