@@ -316,7 +316,7 @@ final class HttpApplicationRunnerTest extends TestCase
         $this->expectOutputString('');
     }
 
-    public function testRunRethrowsWhenEmitterFails(): void
+    public function testRunWhenEmitViewResponseFails(): void
     {
         $runner = new HttpApplicationRunner(
             rootPath: __DIR__ . '/Support',
