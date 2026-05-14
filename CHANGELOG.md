@@ -4,6 +4,9 @@
 
 - Bug #101: Don't duplicate `Host` header values when `getallheaders()` returns non-canonical casing (@samdark)
 - Bug #100: Don't route emitter failures through `ErrorCatcher` in `HttpApplicationRunner` (@samdark)
+- Enh #104: Apply PHP CS Fixer (@Tigrov)
+- Enh #103: Refactor `RequestFactory` (@Tigrov)
+- Bug #105: Fix view response with failure (@Tigrov)
 
 ## 3.2.1 December 20, 2025
 

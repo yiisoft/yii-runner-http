@@ -11,7 +11,10 @@
     <projectFiles>
         <directory name="src" />
         <ignoreFiles>
-            <directory name="vendor"/>
+            <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <issueHandlers>
+        <RiskyTruthyFalsyComparison errorLevel="suppress" />
+    </issueHandlers>
 </psalm>

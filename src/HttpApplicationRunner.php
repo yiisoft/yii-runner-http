@@ -218,6 +218,7 @@ final class HttpApplicationRunner extends ApplicationRunner
             try {
                 $application->start();
                 $response = $application->handle($request);
+                $this->emit($emitter, $request, $response);
             } catch (Throwable $throwable) {
                 $handler = new ThrowableHandler($throwable);
                 /**
@@ -227,8 +228,8 @@ final class HttpApplicationRunner extends ApplicationRunner
                 $response = $container
                     ->get(ErrorCatcher::class)
                     ->process($request, $handler);
+                $this->emit($emitter, $request, $response);
             }
-            $this->emit($emitter, $request, $response);
         } finally {
             $application->afterEmit($response ?? null);
             $application->shutdown();
@@ -237,8 +238,8 @@ final class HttpApplicationRunner extends ApplicationRunner
 
     private function createTemporaryErrorHandler(): ErrorHandler
     {
-        return $this->temporaryErrorHandler ??
-            new ErrorHandler(
+        return $this->temporaryErrorHandler
+            ?? new ErrorHandler(
                 $this->logger ?? new NullLogger(),
                 new HtmlRenderer(),
             );
@@ -289,7 +290,7 @@ final class HttpApplicationRunner extends ApplicationRunner
                 Status::RESET_CONTENT,
                 Status::NOT_MODIFIED,
             ],
-            true
+            true,
         )) {
             return $response;
         }
@@ -325,7 +326,7 @@ final class HttpApplicationRunner extends ApplicationRunner
                 Status::RESET_CONTENT,
                 Status::NOT_MODIFIED,
             ],
-            true
+            true,
         )) {
             return $response;
         }

@@ -12,13 +12,13 @@ use Psr\Http\Message\UriFactoryInterface;
 use Psr\Http\Message\UriInterface;
 use RuntimeException;
 
-use function array_key_exists;
-use function explode;
 use function fopen;
 use function function_exists;
 use function is_array;
 use function preg_match;
 use function str_replace;
+use function str_starts_with;
+use function strpos;
 use function strtolower;
 use function substr;
 use function ucwords;
@@ -35,8 +35,7 @@ final class RequestFactory
         private readonly UriFactoryInterface $uriFactory,
         private readonly UploadedFileFactoryInterface $uploadedFileFactory,
         private readonly StreamFactoryInterface $streamFactory,
-    ) {
-    }
+    ) {}
 
     /**
      * Creates an instance of a server request from custom parameters.
@@ -63,26 +62,23 @@ final class RequestFactory
         }
 
         // Add protocol
-        $protocol = '1.1';
-        if (array_key_exists('SERVER_PROTOCOL', $_SERVER) && $_SERVER['SERVER_PROTOCOL'] !== '') {
-            $protocol = str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL']);
-        }
+        $protocol = !empty($_SERVER['SERVER_PROTOCOL'])
+            ? str_replace('HTTP/', '', $_SERVER['SERVER_PROTOCOL'])
+            : '1.1';
         $request = $request->withProtocolVersion($protocol);
 
         // Add body
         $body ??= fopen('php://input', 'rb');
         if ($body !== false) {
             $request = $request->withBody(
-                $this->streamFactory->createStreamFromResource($body)
+                $this->streamFactory->createStreamFromResource($body),
             );
         }
 
         // Parse body
         if ($method === 'POST') {
             $contentType = $request->getHeaderLine('content-type');
-            if (preg_match('~^application/x-www-form-urlencoded($| |;)~', $contentType)
-                || preg_match('~^multipart/form-data($| |;)~', $contentType)
-            ) {
+            if (preg_match('~^(?:application/x-www-form-urlencoded|multipart/form-data)(?:$| |;)~', $contentType) === 1) {
                 $request = $request->withParsedBody($_POST);
             }
         }
@@ -114,7 +110,7 @@ final class RequestFactory
     {
         $uri = $this->uriFactory->createUri();
 
-        if (array_key_exists('HTTPS', $_SERVER) && $_SERVER['HTTPS'] !== '' && $_SERVER['HTTPS'] !== 'off') {
+        if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
             $uri = $uri->withScheme('https');
         } else {
             $uri = $uri->withScheme('http');
@@ -135,7 +131,9 @@ final class RequestFactory
         }
 
         if (isset($_SERVER['REQUEST_URI'])) {
-            $uri = $uri->withPath(explode('?', $_SERVER['REQUEST_URI'])[0]);
+            $requestUri = $_SERVER['REQUEST_URI'];
+            $pos = strpos($requestUri, '?');
+            $uri = $uri->withPath($pos === false ? $requestUri : substr($requestUri, 0, $pos));
         }
 
         if (isset($_SERVER['QUERY_STRING'])) {
@@ -163,7 +161,7 @@ final class RequestFactory
             if (str_starts_with($name, 'REDIRECT_')) {
                 $name = substr($name, 9);
 
-                if (array_key_exists($name, $_SERVER)) {
+                if (isset($_SERVER[$name])) {
                     continue;
                 }
             }
@@ -220,7 +218,7 @@ final class RequestFactory
         mixed $tempNames,
         mixed $types,
         mixed $sizes,
-        mixed $errors
+        mixed $errors,
     ): void {
         if (is_array($names)) {
             /** @var array|string $name */
@@ -251,7 +249,7 @@ final class RequestFactory
             (int) $sizes,
             (int) $errors,
             $names,
-            $types
+            $types,
         );
     }
 }
