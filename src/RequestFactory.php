@@ -185,10 +185,12 @@ final class RequestFactory
     private function getAllHeaders(): array|false
     {
         if (function_exists(__NAMESPACE__ . '\getallheaders')) {
+            /** @psalm-var array<string, string>|false */
             return getallheaders();
         }
 
         if (function_exists('getallheaders')) {
+            /** @psalm-var array<string, string>|false */
             return getallheaders();
         }
 
