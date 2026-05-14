@@ -151,7 +151,6 @@ final class RequestFactory
         /** @psalm-var array<string, string> $_SERVER */
 
         if (($headers = $this->getAllHeaders()) !== false) {
-            /** @psalm-var array<string, string> $headers */
             return $headers;
         }
 
