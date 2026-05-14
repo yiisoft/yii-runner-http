@@ -189,7 +189,7 @@ final class RequestFactory
         }
 
         if (function_exists('getallheaders')) {
-            return \getallheaders();
+            return getallheaders();
         }
 
         return false;

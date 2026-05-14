@@ -29,11 +29,6 @@ final class RequestFactoryTest extends TestCase
         require_once __DIR__ . '/getallheaders_stub.php';
     }
 
-    public static function getAllHeadersStubResult(): array|false
-    {
-        return self::$getAllHeadersResult;
-    }
-
     protected function setUp(): void
     {
         $this->globalServer = $_SERVER;
@@ -47,6 +42,11 @@ final class RequestFactoryTest extends TestCase
         $_SERVER = $this->globalServer;
         $_POST = $this->globalPost;
         $_FILES = $this->globalFiles;
+    }
+
+    public static function getAllHeadersStubResult(): array|false
+    {
+        return self::$getAllHeadersResult;
     }
 
     public function testUploadedFiles(): void
