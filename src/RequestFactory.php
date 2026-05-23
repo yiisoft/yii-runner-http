@@ -14,7 +14,6 @@ use RuntimeException;
 
 use function fopen;
 use function function_exists;
-use function getallheaders;
 use function is_array;
 use function preg_match;
 use function str_replace;
@@ -56,7 +55,7 @@ final class RequestFactory
 
         // Add headers
         foreach ($this->getHeaders() as $name => $value) {
-            if ($name === 'Host' && $request->hasHeader('Host')) {
+            if (strtolower($name) === 'host' && $request->hasHeader('Host')) {
                 continue;
             }
             $request = $request->withAddedHeader($name, $value);
@@ -151,8 +150,7 @@ final class RequestFactory
     {
         /** @psalm-var array<string, string> $_SERVER */
 
-        if (function_exists('getallheaders') && ($headers = getallheaders()) !== false) {
-            /** @psalm-var array<string, string> $headers */
+        if (($headers = $this->getAllHeaders()) !== false) {
             return $headers;
         }
 
@@ -178,6 +176,24 @@ final class RequestFactory
         }
 
         return $headers;
+    }
+
+    /**
+     * @psalm-return array<string, string>|false
+     */
+    private function getAllHeaders(): array|false
+    {
+        if (function_exists(__NAMESPACE__ . '\getallheaders')) {
+            /** @psalm-var array<string, string>|false */
+            return getallheaders();
+        }
+
+        if (function_exists('getallheaders')) {
+            /** @psalm-var array<string, string>|false */
+            return getallheaders();
+        }
+
+        return false;
     }
 
     private function normalizeHeaderName(string $name): string
