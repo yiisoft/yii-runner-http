@@ -43,12 +43,17 @@
         "yiisoft/yii-runner": "^2.2"
     },
     "require-dev": {
-        "friendsofphp/php-cs-fixer": "^3.95.1",
         "bamarni/composer-bin-plugin": "^1.8.2",
+        "friendsofphp/php-cs-fixer": "^3.95.1",
         "httpsoft/http-message": "^1.1.6",
         "phpunit/phpunit": "^10.5.46",
+        "psr/container": "^2.0",
+        "psr/event-dispatcher": "^1.0",
+        "psr/http-server-handler": "^1.0",
+        "psr/http-server-middleware": "^1.0",
         "rector/rector": "^2.4.2",
         "roave/infection-static-analysis-plugin": "^1.35",
+        "shipmonk/composer-dependency-analyser": "^1.8",
         "spatie/phpunit-watcher": "^1.24",
         "vimeo/psalm": "^5.26.1 || ^6.12",
         "yiisoft/code-style": "^1.0",
@@ -85,6 +90,7 @@
         }
     },
     "scripts": {
+        "dependency-analyser": "composer-dependency-analyser",
         "test": "./vendor/bin/phpunit",
         "test-watch": "phpunit-watcher watch"
     }
