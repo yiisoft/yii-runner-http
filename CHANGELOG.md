@@ -7,6 +7,7 @@
 - Enh #104: Apply PHP CS Fixer (@Tigrov)
 - Enh #103: Refactor `RequestFactory` (@Tigrov)
 - Bug #105: Fix view response with failure (@Tigrov)
+- Enh #112: Remove unused `yiisoft/config`, `yiisoft/definitions` and `yiisoft/di` dependencies (@vjik)
 
 ## 3.2.1 December 20, 2025
 
