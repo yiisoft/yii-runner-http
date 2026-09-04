@@ -48,7 +48,7 @@ require_once __DIR__ . '/autoload.php';
 ### Additional configuration
 
 By default, the `HttpApplicationRunner` is configured to work with Yii application templates and follows the
-[config groups convention](https://github.com/yiisoft/docs/blob/master/022-config-groups.md).
+[config groups convention](https://yiisoft.github.io/docs/internals/022-config-groups).
 
 You can override the default configuration using constructor parameters and immutable setters.
 
